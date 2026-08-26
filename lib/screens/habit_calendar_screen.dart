@@ -105,13 +105,20 @@ class _HabitCalendarScreenState
       1,
     );
 
+    // Реалният брой дни в избрания месец.
     final daysInMonth = DateTime(
       _visibleMonth.year,
       _visibleMonth.month + 1,
       0,
     ).day;
 
+    // Понеделник = 1 ... Неделя = 7.
     final leadingEmpty = firstOfMonth.weekday - 1;
+
+    final totalCells = leadingEmpty + daysInMonth;
+
+    // Колко реда са нужни за месеца.
+    final rowCount = (totalCells / 7).ceil();
 
     final today = DateTime.now();
 
@@ -131,9 +138,7 @@ class _HabitCalendarScreenState
               habit.emoji,
               style: const TextStyle(fontSize: 20),
             ),
-
             const SizedBox(width: 8),
-
             Flexible(
               child: Text(
                 habit.name,
@@ -144,11 +149,15 @@ class _HabitCalendarScreenState
         ),
       ),
 
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
 
         child: Column(
           children: [
+            // --------------------------------------------------
+            // STATISTICS
+            // --------------------------------------------------
+
             Row(
               children: [
                 _StatChip(
@@ -167,6 +176,10 @@ class _HabitCalendarScreenState
 
             const SizedBox(height: 20),
 
+            // --------------------------------------------------
+            // MONTH NAVIGATION
+            // --------------------------------------------------
+
             Row(
               mainAxisAlignment:
                   MainAxisAlignment.spaceBetween,
@@ -176,6 +189,7 @@ class _HabitCalendarScreenState
                   icon: const Icon(
                     Icons.chevron_left,
                     color: Colors.white,
+                    size: 30,
                   ),
                 ),
 
@@ -194,12 +208,17 @@ class _HabitCalendarScreenState
                   icon: const Icon(
                     Icons.chevron_right,
                     color: Colors.white,
+                    size: 30,
                   ),
                 ),
               ],
             ),
 
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
+
+            // --------------------------------------------------
+            // DAYS OF WEEK
+            // --------------------------------------------------
 
             Row(
               children: _weekDayLabels
@@ -211,6 +230,7 @@ class _HabitCalendarScreenState
                           style: TextStyle(
                             color: Colors.grey.shade500,
                             fontSize: 12,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                       ),
@@ -221,19 +241,30 @@ class _HabitCalendarScreenState
 
             const SizedBox(height: 8),
 
-            Expanded(
+            // --------------------------------------------------
+            // CALENDAR
+            // --------------------------------------------------
+
+            SizedBox(
+              height: rowCount * 48.0 +
+                  (rowCount - 1) * 8.0,
+
               child: GridView.builder(
-                itemCount:
-                    leadingEmpty + daysInMonth,
+                physics:
+                    const NeverScrollableScrollPhysics(),
+
+                itemCount: totalCells,
 
                 gridDelegate:
                     const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 7,
                   mainAxisSpacing: 8,
                   crossAxisSpacing: 8,
+                  childAspectRatio: 1,
                 ),
 
                 itemBuilder: (context, index) {
+                  // Празни клетки преди първия ден.
                   if (index < leadingEmpty) {
                     return const SizedBox.shrink();
                   }
@@ -277,7 +308,8 @@ class _HabitCalendarScreenState
 
                         border: isToday
                             ? Border.all(
-                                color: AppColors.accent,
+                                color:
+                                    AppColors.accent,
                                 width: 2,
                               )
                             : null,
@@ -295,6 +327,8 @@ class _HabitCalendarScreenState
                                   ? Colors.black
                                   : Colors.white,
 
+                          fontSize: 14,
+
                           fontWeight: isToday
                               ? FontWeight.bold
                               : FontWeight.normal,
@@ -305,12 +339,18 @@ class _HabitCalendarScreenState
                 },
               ),
             ),
+
+            const SizedBox(height: 20),
           ],
         ),
       ),
     );
   }
 }
+
+// ============================================================
+// STAT CHIP
+// ============================================================
 
 class _StatChip extends StatelessWidget {
   final String label;

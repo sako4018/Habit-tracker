@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../models/habit.dart';
-import '../theme/app_colors.dart';
 
 class ContributionHeatmap extends StatelessWidget {
   final List<Habit> habits;
@@ -14,196 +13,268 @@ class ContributionHeatmap extends StatelessWidget {
   });
 
   static const List<Color> levels = [
-    Color(0xFF262626), // 0 done
-    Color(0x40BB86FC), // ~25%
-    Color(0x80BB86FC), // ~50%
-    Color(0xBFBB86FC), // ~75%
-    AppColors.accent, // 100%
+    Color(0xFF202A23),
+    Color(0xFF123D20),
+    Color(0xFF176B2C),
+    Color(0xFF26A641),
+    Color(0xFF39D353),
   ];
 
-  int _levelFor(DateTime day) {
-    if (habits.isEmpty) return 0;
+  static const List<String> _monthNames = [
+    'Януари',
+    'Февруари',
+    'Март',
+    'Април',
+    'Май',
+    'Юни',
+    'Юли',
+    'Август',
+    'Септември',
+    'Октомври',
+    'Ноември',
+    'Декември',
+  ];
 
-    final done = habits.where((h) => h.isDoneOn(day)).length;
+  static const List<String> _weekDays = [
+    'П',
+    'В',
+    'С',
+    'Ч',
+    'П',
+    'С',
+    'Н',
+  ];
 
-    if (done == 0) return 0;
+  int _completedHabits(DateTime date) {
+    return habits.where(
+      (habit) => habit.isDoneOn(date),
+    ).length;
+  }
 
-    final ratio = done / habits.length;
+  int _levelFor(DateTime date) {
+    if (habits.isEmpty) {
+      return 0;
+    }
 
-    if (ratio < 0.34) return 1;
-    if (ratio < 0.67) return 2;
-    if (ratio < 1.0) return 3;
+    final completed = _completedHabits(date);
+    final percentage = completed / habits.length;
+
+    if (percentage == 0) {
+      return 0;
+    }
+
+    if (percentage <= 0.20) {
+      return 1;
+    }
+
+    if (percentage <= 0.40) {
+      return 2;
+    }
+
+    if (percentage <= 0.60) {
+      return 3;
+    }
 
     return 4;
   }
 
-  static const _monthNames = [
-    'Яну',
-    'Фев',
-    'Мар',
-    'Апр',
-    'Май',
-    'Юни',
-    'Юли',
-    'Авг',
-    'Сеп',
-    'Окт',
-    'Ное',
-    'Дек',
-  ];
-
-  static const _dayLabels = [
-    'П',
-    '',
-    'С',
-    '',
-    'П',
-    '',
-    '',
-  ];
-
   @override
   Widget build(BuildContext context) {
-    final today = DateTime.now();
+    final now = DateTime.now();
 
-    final todayOnly = DateTime(
-      today.year,
-      today.month,
-      today.day,
+    final year = now.year;
+    final month = now.month;
+
+    final firstDay = DateTime(
+      year,
+      month,
+      1,
     );
 
-    final daysBack = weeks * 7 - 1;
+    final daysInMonth = DateTime(
+      year,
+      month + 1,
+      0,
+    ).day;
 
-    var start = todayOnly.subtract(
-      Duration(days: daysBack),
+    // Понеделник = 1 ... Неделя = 7.
+    final leadingEmpty = firstDay.weekday - 1;
+
+    final totalCells =
+        leadingEmpty + daysInMonth;
+
+    final weekCount =
+        (totalCells / 7).ceil();
+
+    final today = DateTime(
+      now.year,
+      now.month,
+      now.day,
     );
 
-    start = start.subtract(
-      Duration(days: start.weekday - 1),
-    );
+    return Column(
+      crossAxisAlignment:
+          CrossAxisAlignment.start,
+      children: [
+        // --------------------------------------------------
+        // МЕСЕЦ
+        // --------------------------------------------------
 
-    final totalDays =
-        todayOnly.difference(start).inDays + 1;
-
-    final columnsCount = (totalDays / 7).ceil();
-
-    int? lastMonth;
-
-    final columns = <Widget>[];
-
-    for (int col = 0; col < columnsCount; col++) {
-      String? monthLabel;
-
-      final cells = <Widget>[];
-
-      for (int row = 0; row < 7; row++) {
-        final date = start.add(
-          Duration(
-            days: col * 7 + row,
+        Text(
+          '${_monthNames[month - 1]} $year',
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
           ),
-        );
-
-        if (row == 0 &&
-            date.month != lastMonth &&
-            !date.isAfter(todayOnly)) {
-          monthLabel = _monthNames[date.month - 1];
-          lastMonth = date.month;
-        }
-
-        if (date.isAfter(todayOnly)) {
-          cells.add(
-            const SizedBox(
-              width: 12,
-              height: 12,
-            ),
-          );
-
-          continue;
-        }
-
-        final level = _levelFor(date);
-
-        final isToday =
-            date.year == todayOnly.year &&
-            date.month == todayOnly.month &&
-            date.day == todayOnly.day;
-
-        cells.add(
-          Container(
-            width: 12,
-            height: 12,
-            margin: const EdgeInsets.all(1.5),
-            decoration: BoxDecoration(
-              color: levels[level],
-              borderRadius: BorderRadius.circular(3),
-              border: isToday
-                  ? Border.all(
-                      color: Colors.white54,
-                      width: 1,
-                    )
-                  : null,
-            ),
-          ),
-        );
-      }
-
-      columns.add(
-        Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SizedBox(
-              height: 14,
-              width: 15,
-              child: monthLabel != null
-                  ? Text(
-                      monthLabel,
-                      style: TextStyle(
-                        fontSize: 9,
-                        color: Colors.grey.shade500,
-                      ),
-                      overflow: TextOverflow.visible,
-                      softWrap: false,
-                    )
-                  : null,
-            ),
-            ...cells,
-          ],
         ),
-      );
-    }
 
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      reverse: true,
-      child: Row(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(
-              top: 14,
-              right: 4,
-            ),
-            child: Column(
-              children: _dayLabels
-                  .map(
-                    (label) => SizedBox(
-                      height: 15,
-                      child: Text(
-                        label,
-                        style: TextStyle(
-                          fontSize: 9,
-                          color: Colors.grey.shade500,
+        const SizedBox(height: 12),
+
+        // --------------------------------------------------
+        // КАЛЕНДАР
+        // --------------------------------------------------
+
+        Row(
+          crossAxisAlignment:
+              CrossAxisAlignment.start,
+          children: [
+            // ------------------------------------------------
+            // ДНИ ОТ СЕДМИЦАТА
+            // ------------------------------------------------
+
+            SizedBox(
+              width: 20,
+              child: Column(
+                children: List.generate(
+                  7,
+                  (index) {
+                    return SizedBox(
+                      height: 20,
+                      child: Center(
+                        child: Text(
+                          _weekDays[index],
+                          style: TextStyle(
+                            color:
+                                Colors.grey.shade500,
+                            fontSize: 10,
+                          ),
                         ),
                       ),
-                    ),
-                  )
-                  .toList(),
+                    );
+                  },
+                ),
+              ),
             ),
-          ),
-          ...columns,
-        ],
-      ),
+
+            const SizedBox(width: 5),
+
+            // ------------------------------------------------
+            // КВАДРАТЧЕТА
+            // ------------------------------------------------
+
+            Expanded(
+              child: Column(
+                children: List.generate(
+                  7,
+                  (weekdayIndex) {
+                    return SizedBox(
+                      height: 20,
+                      child: Row(
+                        mainAxisAlignment:
+                            MainAxisAlignment.start,
+                        children: List.generate(
+                          weekCount,
+                          (weekIndex) {
+                            final cellIndex =
+                                weekIndex * 7 +
+                                    weekdayIndex;
+
+                            final dayNumber =
+                                cellIndex -
+                                    leadingEmpty +
+                                    1;
+
+                            // Извън текущия месец.
+                            if (dayNumber < 1 ||
+                                dayNumber >
+                                    daysInMonth) {
+                              return const SizedBox(
+                                width: 18,
+                                height: 18,
+                              );
+                            }
+
+                            final date = DateTime(
+                              year,
+                              month,
+                              dayNumber,
+                            );
+
+                            final level =
+                                _levelFor(date);
+
+                            final completed =
+                                _completedHabits(
+                              date,
+                            );
+
+                            final isToday =
+                                date.year ==
+                                        today.year &&
+                                    date.month ==
+                                        today.month &&
+                                    date.day ==
+                                        today.day;
+
+                            return SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: Center(
+                                child: Tooltip(
+                                  message:
+                                      '$dayNumber $month/$year\n'
+                                      '$completed/${habits.length} навика',
+                                  child:
+                                      AnimatedContainer(
+                                    duration:
+                                        const Duration(
+                                      milliseconds: 180,
+                                    ),
+                                    width: 16,
+                                    height: 16,
+                                    decoration:
+                                        BoxDecoration(
+                                      color:
+                                          levels[level],
+                                      borderRadius:
+                                          BorderRadius
+                                              .circular(3),
+                                      border: isToday
+                                          ? Border.all(
+                                              color:
+                                                  const Color(
+                                                0xFF7CFF8C,
+                                              ),
+                                              width: 2,
+                                            )
+                                          : null,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }
