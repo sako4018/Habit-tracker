@@ -52,9 +52,11 @@ class StatsScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: AppColors.background,
+
       appBar: AppBar(
         title: const Text('Статистика'),
       ),
+
       body: habits.isEmpty
           ? Center(
               child: Text(
@@ -68,7 +70,8 @@ class StatsScreen extends StatelessWidget {
           : SingleChildScrollView(
               padding: const EdgeInsets.all(20),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment:
+                    CrossAxisAlignment.start,
                 children: [
                   Row(
                     children: [
@@ -76,7 +79,9 @@ class StatsScreen extends StatelessWidget {
                         label: 'Успеваемост (30 дни)',
                         value: '$successRate%',
                       ),
+
                       const SizedBox(width: 12),
+
                       StatCard(
                         label: 'Най-дълъг streak',
                         value: '$bestStreak дни',
@@ -92,7 +97,9 @@ class StatsScreen extends StatelessWidget {
                         label: 'Навици',
                         value: '${habits.length}',
                       ),
+
                       const SizedBox(width: 12),
+
                       StatCard(
                         label: 'Общо отчитания',
                         value: '$totalCheckIns',
@@ -106,17 +113,19 @@ class StatsScreen extends StatelessWidget {
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: AppColors.surface,
-                      borderRadius: BorderRadius.circular(18),
+                      borderRadius:
+                          BorderRadius.circular(18),
                     ),
                     child: Column(
                       crossAxisAlignment:
                           CrossAxisAlignment.start,
                       children: [
                         const Text(
-                          'Последната година',
+                          'Активност този месец',
                           style: TextStyle(
                             color: Colors.white,
-                            fontWeight: FontWeight.w600,
+                            fontWeight:
+                                FontWeight.w600,
                             fontSize: 15,
                           ),
                         ),
@@ -125,7 +134,6 @@ class StatsScreen extends StatelessWidget {
 
                         ContributionHeatmap(
                           habits: habits,
-                          weeks: 52,
                         ),
 
                         const SizedBox(height: 10),

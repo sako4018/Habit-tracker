@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
 import '../widgets/add_habit_dialog.dart';
 import '../models/habit.dart';
 import '../services/habit_storage.dart';
+
 import 'habit_calendar_screen.dart';
 import 'home_screen.dart';
 import 'settings_screen.dart';
 import 'stats_screen.dart';
+import 'year_contribution_screen.dart';
 
 class RootShell extends StatefulWidget {
   const RootShell({super.key});
@@ -17,7 +20,9 @@ class RootShell extends StatefulWidget {
 
 class _RootShellState extends State<RootShell> {
   List<Habit> habits = [];
+
   bool loading = true;
+
   int _tabIndex = 0;
 
   @override
@@ -52,7 +57,9 @@ class _RootShellState extends State<RootShell> {
 
     if (willBeDone) {
       HapticFeedback.mediumImpact();
-      SystemSound.play(SystemSoundType.click);
+      SystemSound.play(
+        SystemSoundType.click,
+      );
     }
   }
 
@@ -91,7 +98,7 @@ class _RootShellState extends State<RootShell> {
     _persist();
   }
 
-  void _openCalendar(Habit habit) async {
+  Future<void> _openCalendar(Habit habit) async {
     await Navigator.push(
       context,
       MaterialPageRoute(
@@ -106,10 +113,15 @@ class _RootShellState extends State<RootShell> {
     );
   }
 
-  void _goToStatsTab() {
-    setState(() {
-      _tabIndex = 1;
-    });
+  Future<void> _openYearContribution() async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => YearContributionScreen(
+          habits: habits,
+        ),
+      ),
+    );
   }
 
   void _onDataCleared() {
@@ -128,7 +140,7 @@ class _RootShellState extends State<RootShell> {
         onToggleToday: _toggleToday,
         onDelete: _deleteHabit,
         onOpenCalendar: _openCalendar,
-        onViewYear: _goToStatsTab,
+        onViewYear: _openYearContribution,
       ),
 
       StatsScreen(
@@ -158,15 +170,23 @@ class _RootShellState extends State<RootShell> {
 
         items: const [
           BottomNavigationBarItem(
-            icon: Icon(Icons.checklist_rtl),
+            icon: Icon(
+              Icons.checklist_rtl,
+            ),
             label: 'Днес',
           ),
+
           BottomNavigationBarItem(
-            icon: Icon(Icons.bar_chart),
+            icon: Icon(
+              Icons.bar_chart,
+            ),
             label: 'Статистика',
           ),
+
           BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
+            icon: Icon(
+              Icons.settings,
+            ),
             label: 'Настройки',
           ),
         ],

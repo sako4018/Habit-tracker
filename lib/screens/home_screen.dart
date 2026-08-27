@@ -92,8 +92,7 @@ class HomeScreen extends StatelessWidget {
                           8,
                         ),
                         child: Container(
-                          padding:
-                              const EdgeInsets.all(16),
+                          padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
                             color: AppColors.surface,
                             borderRadius:
@@ -133,7 +132,7 @@ class HomeScreen extends StatelessWidget {
                                         ),
 
                                         const SizedBox(
-                                          width: 2,
+                                          width: 3,
                                         ),
 
                                         Icon(
@@ -154,7 +153,6 @@ class HomeScreen extends StatelessWidget {
 
                               ContributionHeatmap(
                                 habits: habits,
-                                weeks: 5,
                               ),
 
                               const SizedBox(height: 10),

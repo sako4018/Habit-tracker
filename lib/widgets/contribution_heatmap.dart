@@ -35,20 +35,8 @@ class ContributionHeatmap extends StatelessWidget {
     'Декември',
   ];
 
-  static const List<String> _weekDays = [
-    'П',
-    'В',
-    'С',
-    'Ч',
-    'П',
-    'С',
-    'Н',
-  ];
-
   int _completedHabits(DateTime date) {
-    return habits.where(
-      (habit) => habit.isDoneOn(date),
-    ).length;
+    return habits.where((habit) => habit.isDoneOn(date)).length;
   }
 
   int _levelFor(DateTime date) {
@@ -82,8 +70,31 @@ class ContributionHeatmap extends StatelessWidget {
   Widget build(BuildContext context) {
     final now = DateTime.now();
 
-    final year = now.year;
-    final month = now.month;
+    final normalizedToday = DateTime(
+      now.year,
+      now.month,
+      now.day,
+    );
+
+    /*
+     * weeks = 5:
+     * Megjelenява текущия месец.
+     *
+     * weeks = 52:
+     * Показва последните 52 седмици,
+     * като GitHub-style contribution графика.
+     */
+
+    if (weeks >= 52) {
+      return _buildYearHeatmap(normalizedToday);
+    }
+
+    return _buildMonthHeatmap(normalizedToday);
+  }
+
+  Widget _buildMonthHeatmap(DateTime today) {
+    final year = today.year;
+    final month = today.month;
 
     final firstDay = DateTime(
       year,
@@ -97,29 +108,32 @@ class ContributionHeatmap extends StatelessWidget {
       0,
     ).day;
 
-    // Понеделник = 1 ... Неделя = 7.
+    // Dart:
+    // Monday = 1
+    // Tuesday = 2
+    // ...
+    // Sunday = 7
+    //
+    // Затова понеделник има индекс 0.
     final leadingEmpty = firstDay.weekday - 1;
 
-    final totalCells =
-        leadingEmpty + daysInMonth;
+    final totalCells = leadingEmpty + daysInMonth;
 
-    final weekCount =
-        (totalCells / 7).ceil();
+    final weekCount = (totalCells / 7).ceil();
 
-    final today = DateTime(
-      now.year,
-      now.month,
-      now.day,
-    );
+    const weekDays = [
+      'П',
+      'В',
+      'С',
+      'Ч',
+      'П',
+      'С',
+      'Н',
+    ];
 
     return Column(
-      crossAxisAlignment:
-          CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // --------------------------------------------------
-        // МЕСЕЦ
-        // --------------------------------------------------
-
         Text(
           '${_monthNames[month - 1]} $year',
           style: const TextStyle(
@@ -131,32 +145,22 @@ class ContributionHeatmap extends StatelessWidget {
 
         const SizedBox(height: 12),
 
-        // --------------------------------------------------
-        // КАЛЕНДАР
-        // --------------------------------------------------
-
         Row(
-          crossAxisAlignment:
-              CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ------------------------------------------------
-            // ДНИ ОТ СЕДМИЦАТА
-            // ------------------------------------------------
-
             SizedBox(
               width: 20,
               child: Column(
                 children: List.generate(
                   7,
-                  (index) {
+                  (weekdayIndex) {
                     return SizedBox(
                       height: 20,
                       child: Center(
                         child: Text(
-                          _weekDays[index],
+                          weekDays[weekdayIndex],
                           style: TextStyle(
-                            color:
-                                Colors.grey.shade500,
+                            color: Colors.grey.shade500,
                             fontSize: 10,
                           ),
                         ),
@@ -169,10 +173,6 @@ class ContributionHeatmap extends StatelessWidget {
 
             const SizedBox(width: 5),
 
-            // ------------------------------------------------
-            // КВАДРАТЧЕТА
-            // ------------------------------------------------
-
             Expanded(
               child: Column(
                 children: List.generate(
@@ -181,24 +181,17 @@ class ContributionHeatmap extends StatelessWidget {
                     return SizedBox(
                       height: 20,
                       child: Row(
-                        mainAxisAlignment:
-                            MainAxisAlignment.start,
                         children: List.generate(
                           weekCount,
                           (weekIndex) {
                             final cellIndex =
-                                weekIndex * 7 +
-                                    weekdayIndex;
+                                weekIndex * 7 + weekdayIndex;
 
                             final dayNumber =
-                                cellIndex -
-                                    leadingEmpty +
-                                    1;
+                                cellIndex - leadingEmpty + 1;
 
-                            // Извън текущия месец.
                             if (dayNumber < 1 ||
-                                dayNumber >
-                                    daysInMonth) {
+                                dayNumber > daysInMonth) {
                               return const SizedBox(
                                 width: 18,
                                 height: 18,
@@ -211,58 +204,9 @@ class ContributionHeatmap extends StatelessWidget {
                               dayNumber,
                             );
 
-                            final level =
-                                _levelFor(date);
-
-                            final completed =
-                                _completedHabits(
-                              date,
-                            );
-
-                            final isToday =
-                                date.year ==
-                                        today.year &&
-                                    date.month ==
-                                        today.month &&
-                                    date.day ==
-                                        today.day;
-
-                            return SizedBox(
-                              width: 18,
-                              height: 18,
-                              child: Center(
-                                child: Tooltip(
-                                  message:
-                                      '$dayNumber $month/$year\n'
-                                      '$completed/${habits.length} навика',
-                                  child:
-                                      AnimatedContainer(
-                                    duration:
-                                        const Duration(
-                                      milliseconds: 180,
-                                    ),
-                                    width: 16,
-                                    height: 16,
-                                    decoration:
-                                        BoxDecoration(
-                                      color:
-                                          levels[level],
-                                      borderRadius:
-                                          BorderRadius
-                                              .circular(3),
-                                      border: isToday
-                                          ? Border.all(
-                                              color:
-                                                  const Color(
-                                                0xFF7CFF8C,
-                                              ),
-                                              width: 2,
-                                            )
-                                          : null,
-                                    ),
-                                  ),
-                                ),
-                              ),
+                            return _buildDayCell(
+                              date: date,
+                              today: today,
                             );
                           },
                         ),
@@ -275,6 +219,169 @@ class ContributionHeatmap extends StatelessWidget {
           ],
         ),
       ],
+    );
+  }
+
+  Widget _buildYearHeatmap(DateTime today) {
+    /*
+     * Намираме понеделника преди или на датата,
+     * която е преди 52 седмици.
+     */
+
+    final startDate = today.subtract(
+      const Duration(days: 364),
+    );
+
+    final monday = startDate.subtract(
+      Duration(days: startDate.weekday - 1),
+    );
+
+    final dates = List.generate(
+      52 * 7,
+      (index) => monday.add(
+        Duration(days: index),
+      ),
+    );
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Последната година',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+
+        const SizedBox(height: 12),
+
+        SizedBox(
+          height: 125,
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: List.generate(
+                52,
+                (weekIndex) {
+                  return Padding(
+                    padding: const EdgeInsets.only(
+                      right: 3,
+                    ),
+                    child: Column(
+                      children: List.generate(
+                        7,
+                        (weekdayIndex) {
+                          final index =
+                              weekIndex * 7 + weekdayIndex;
+
+                          final date = dates[index];
+
+                          final isFuture =
+                              date.isAfter(today);
+
+                          if (isFuture) {
+                            return const SizedBox(
+                              width: 14,
+                              height: 14,
+                            );
+                          }
+
+                          return Padding(
+                            padding: const EdgeInsets.only(
+                              bottom: 3,
+                            ),
+                            child: _buildYearCell(
+                              date,
+                              today,
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildYearCell(
+    DateTime date,
+    DateTime today,
+  ) {
+    final level = _levelFor(date);
+    final completed = _completedHabits(date);
+
+    final isToday =
+        date.year == today.year &&
+        date.month == today.month &&
+        date.day == today.day;
+
+    return Tooltip(
+      message:
+          '${date.day}.${date.month}.${date.year}\n'
+          '$completed/${habits.length} навика',
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        width: 14,
+        height: 14,
+        decoration: BoxDecoration(
+          color: levels[level],
+          borderRadius: BorderRadius.circular(3),
+          border: isToday
+              ? Border.all(
+                  color: const Color(0xFF7CFF8C),
+                  width: 1.5,
+                )
+              : null,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDayCell({
+    required DateTime date,
+    required DateTime today,
+  }) {
+    final level = _levelFor(date);
+    final completed = _completedHabits(date);
+
+    final isToday =
+        date.year == today.year &&
+        date.month == today.month &&
+        date.day == today.day;
+
+    return SizedBox(
+      width: 18,
+      height: 18,
+      child: Center(
+        child: Tooltip(
+          message:
+              '${date.day}.${date.month}.${date.year}\n'
+              '$completed/${habits.length} навика',
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 180),
+            width: 16,
+            height: 16,
+            decoration: BoxDecoration(
+              color: levels[level],
+              borderRadius: BorderRadius.circular(3),
+              border: isToday
+                  ? Border.all(
+                      color: const Color(0xFF7CFF8C),
+                      width: 2,
+                    )
+                  : null,
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
