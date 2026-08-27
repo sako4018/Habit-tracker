@@ -185,7 +185,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         disabledBackgroundColor:
                             AppColors.accent
                                 .withValues(alpha: 0.5),
-                        // ignore: prefer_const_constructors
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
                         ),
