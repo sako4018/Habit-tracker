@@ -7,14 +7,9 @@ import 'screens/root_shell.dart';
 import 'theme/app_colors.dart';
 
 void main() {
-  runApp(
-    DevicePreview(
-      // Only wraps the UI in a phone frame for local web debugging.
-      // Disabled automatically in release builds.
-      enabled: !const bool.fromEnvironment('dart.vm.product'),
-      builder: (context) => const HabitTrackerApp(),
-    ),
-  );
+  DevicePreview.enable();
+
+  runApp(const HabitTrackerApp());
 }
 
 class HabitTrackerApp extends StatefulWidget {
@@ -71,11 +66,8 @@ class _HabitTrackerAppState
     );
 
     return MaterialApp(
-      title: 'Habit Tracker',
+      title: 'Streakly',
       debugShowCheckedModeBanner: false,
-
-      locale: DevicePreview.locale(context),
-      builder: DevicePreview.appBuilder,
 
       theme: ThemeData(
         useMaterial3: true,
