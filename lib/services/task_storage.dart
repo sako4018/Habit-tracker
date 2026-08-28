@@ -20,7 +20,7 @@ class TaskStorage {
 
     return decoded
         .map(
-          (item) => Task.fromMap(
+          (item) => Task.fromJson(
             Map<String, dynamic>.from(item),
           ),
         )
@@ -31,7 +31,7 @@ class TaskStorage {
     final prefs = await SharedPreferences.getInstance();
 
     final data = tasks
-        .map((task) => task.toMap())
+        .map((task) => task.toJson())
         .toList();
 
     await prefs.setString(

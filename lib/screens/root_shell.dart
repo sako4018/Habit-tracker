@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../widgets/add_habit_dialog.dart';
 import '../models/habit.dart';
+import '../models/task.dart';
 import '../services/habit_storage.dart';
+import '../services/task_storage.dart';
+import '../widgets/add_habit_dialog.dart';
+import '../widgets/add_task_dialog.dart';
 
 import 'habit_calendar_screen.dart';
 import 'home_screen.dart';
@@ -20,6 +23,7 @@ class RootShell extends StatefulWidget {
 
 class _RootShellState extends State<RootShell> {
   List<Habit> habits = [];
+  List<Task> tasks = [];
 
   bool loading = true;
 
@@ -32,16 +36,26 @@ class _RootShellState extends State<RootShell> {
   }
 
   Future<void> _load() async {
-    final loaded = await HabitStorage.load();
+    final loadedHabits = await HabitStorage.load();
+    final loadedTasks = await TaskStorage.load();
+
+    if (!mounted) {
+      return;
+    }
 
     setState(() {
-      habits = loaded;
+      habits = loadedHabits;
+      tasks = loadedTasks;
       loading = false;
     });
   }
 
-  Future<void> _persist() {
+  Future<void> _persistHabits() {
     return HabitStorage.save(habits);
+  }
+
+  Future<void> _persistTasks() {
+    return TaskStorage.save(tasks);
   }
 
   void _toggleToday(Habit habit) {
@@ -53,9 +67,24 @@ class _RootShellState extends State<RootShell> {
       habit.toggle(now);
     });
 
-    _persist();
+    _persistHabits();
 
     if (willBeDone) {
+      HapticFeedback.mediumImpact();
+      SystemSound.play(
+        SystemSoundType.click,
+      );
+    }
+  }
+
+  void _toggleTask(Task task) {
+    setState(() {
+      task.toggle();
+    });
+
+    _persistTasks();
+
+    if (task.isCompleted) {
       HapticFeedback.mediumImpact();
       SystemSound.play(
         SystemSoundType.click,
@@ -70,7 +99,17 @@ class _RootShellState extends State<RootShell> {
       );
     });
 
-    _persist();
+    _persistHabits();
+  }
+
+  void _deleteTask(Task task) {
+    setState(() {
+      tasks.removeWhere(
+        (t) => t.id == task.id,
+      );
+    });
+
+    _persistTasks();
   }
 
   Future<void> _addHabit() async {
@@ -95,7 +134,34 @@ class _RootShellState extends State<RootShell> {
       habits.add(newHabit);
     });
 
-    _persist();
+    _persistHabits();
+  }
+
+  Future<void> _addTask() async {
+    final result =
+        await showDialog<Map<String, String>>(
+      context: context,
+      builder: (_) => const AddTaskDialog(),
+    );
+
+    if (result == null) {
+      return;
+    }
+
+    final newTask = Task(
+      id:
+          '${DateTime.now().millisecondsSinceEpoch}_${tasks.length}',
+      name: result['name']!,
+      date: DateTime.parse(
+        result['date']!,
+      ),
+    );
+
+    setState(() {
+      tasks.add(newTask);
+    });
+
+    _persistTasks();
   }
 
   Future<void> _openCalendar(Habit habit) async {
@@ -106,7 +172,7 @@ class _RootShellState extends State<RootShell> {
           habit: habit,
           onChanged: () {
             setState(() {});
-            _persist();
+            _persistHabits();
           },
         ),
       ),
@@ -127,7 +193,11 @@ class _RootShellState extends State<RootShell> {
   void _onDataCleared() {
     setState(() {
       habits = [];
+      tasks = [];
     });
+
+    _persistHabits();
+    _persistTasks();
   }
 
   @override
@@ -135,10 +205,14 @@ class _RootShellState extends State<RootShell> {
     final screens = [
       HomeScreen(
         habits: habits,
+        tasks: tasks,
         loading: loading,
         onAddHabit: _addHabit,
+        onAddTask: _addTask,
         onToggleToday: _toggleToday,
+        onToggleTask: _toggleTask,
         onDelete: _deleteHabit,
+        onDeleteTask: _deleteTask,
         onOpenCalendar: _openCalendar,
         onViewYear: _openYearContribution,
       ),
@@ -157,17 +231,13 @@ class _RootShellState extends State<RootShell> {
         index: _tabIndex,
         children: screens,
       ),
-
-      bottomNavigationBar:
-          BottomNavigationBar(
+      bottomNavigationBar: BottomNavigationBar(
         currentIndex: _tabIndex,
-
         onTap: (index) {
           setState(() {
             _tabIndex = index;
           });
         },
-
         items: const [
           BottomNavigationBarItem(
             icon: Icon(
@@ -175,14 +245,12 @@ class _RootShellState extends State<RootShell> {
             ),
             label: 'Днес',
           ),
-
           BottomNavigationBarItem(
             icon: Icon(
               Icons.bar_chart,
             ),
             label: 'Статистика',
           ),
-
           BottomNavigationBarItem(
             icon: Icon(
               Icons.settings,

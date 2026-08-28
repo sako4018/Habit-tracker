@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 
 import '../models/habit.dart';
+import '../models/task.dart';
 
 class ContributionHeatmap extends StatelessWidget {
   final List<Habit> habits;
+  final List<Task> tasks;
   final int weeks;
 
   const ContributionHeatmap({
     super.key,
     required this.habits,
+    this.tasks = const [],
     this.weeks = 5,
   });
 
@@ -35,17 +38,49 @@ class ContributionHeatmap extends StatelessWidget {
     'Декември',
   ];
 
+  bool _isSameDay(DateTime a, DateTime b) {
+    return a.year == b.year &&
+        a.month == b.month &&
+        a.day == b.day;
+  }
+
   int _completedHabits(DateTime date) {
     return habits.where((habit) => habit.isDoneOn(date)).length;
   }
 
+  int _completedTasks(DateTime date) {
+    return tasks
+        .where(
+          (task) =>
+              _isSameDay(task.date, date) &&
+              task.isCompleted,
+        )
+        .length;
+  }
+
+  int _totalItems(DateTime date) {
+    final totalHabits = habits.length;
+
+    final totalTasksForDate = tasks
+        .where((task) => _isSameDay(task.date, date))
+        .length;
+
+    return totalHabits + totalTasksForDate;
+  }
+
+  int _completedItems(DateTime date) {
+    return _completedHabits(date) + _completedTasks(date);
+  }
+
   int _levelFor(DateTime date) {
-    if (habits.isEmpty) {
+    final total = _totalItems(date);
+
+    if (total == 0) {
       return 0;
     }
 
-    final completed = _completedHabits(date);
-    final percentage = completed / habits.length;
+    final completed = _completedItems(date);
+    final percentage = completed / total;
 
     if (percentage == 0) {
       return 0;
@@ -76,15 +111,6 @@ class ContributionHeatmap extends StatelessWidget {
       now.day,
     );
 
-    /*
-     * weeks = 5:
-     * Megjelenява текущия месец.
-     *
-     * weeks = 52:
-     * Показва последните 52 седмици,
-     * като GitHub-style contribution графика.
-     */
-
     if (weeks >= 52) {
       return _buildYearHeatmap(normalizedToday);
     }
@@ -108,13 +134,6 @@ class ContributionHeatmap extends StatelessWidget {
       0,
     ).day;
 
-    // Dart:
-    // Monday = 1
-    // Tuesday = 2
-    // ...
-    // Sunday = 7
-    //
-    // Затова понеделник има индекс 0.
     final leadingEmpty = firstDay.weekday - 1;
 
     final totalCells = leadingEmpty + daysInMonth;
@@ -142,9 +161,7 @@ class ContributionHeatmap extends StatelessWidget {
             fontWeight: FontWeight.w600,
           ),
         ),
-
         const SizedBox(height: 12),
-
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -170,9 +187,7 @@ class ContributionHeatmap extends StatelessWidget {
                 ),
               ),
             ),
-
             const SizedBox(width: 5),
-
             Expanded(
               child: Column(
                 children: List.generate(
@@ -223,11 +238,6 @@ class ContributionHeatmap extends StatelessWidget {
   }
 
   Widget _buildYearHeatmap(DateTime today) {
-    /*
-     * Намираме понеделника преди или на датата,
-     * която е преди 52 седмици.
-     */
-
     final startDate = today.subtract(
       const Duration(days: 364),
     );
@@ -254,9 +264,7 @@ class ContributionHeatmap extends StatelessWidget {
             fontWeight: FontWeight.w600,
           ),
         ),
-
         const SizedBox(height: 12),
-
         SizedBox(
           height: 125,
           child: SingleChildScrollView(
@@ -316,7 +324,8 @@ class ContributionHeatmap extends StatelessWidget {
     DateTime today,
   ) {
     final level = _levelFor(date);
-    final completed = _completedHabits(date);
+    final completed = _completedItems(date);
+    final total = _totalItems(date);
 
     final isToday =
         date.year == today.year &&
@@ -326,7 +335,7 @@ class ContributionHeatmap extends StatelessWidget {
     return Tooltip(
       message:
           '${date.day}.${date.month}.${date.year}\n'
-          '$completed/${habits.length} навика',
+          '$completed/$total изпълнени',
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
         width: 14,
@@ -350,7 +359,8 @@ class ContributionHeatmap extends StatelessWidget {
     required DateTime today,
   }) {
     final level = _levelFor(date);
-    final completed = _completedHabits(date);
+    final completed = _completedItems(date);
+    final total = _totalItems(date);
 
     final isToday =
         date.year == today.year &&
@@ -364,7 +374,7 @@ class ContributionHeatmap extends StatelessWidget {
         child: Tooltip(
           message:
               '${date.day}.${date.month}.${date.year}\n'
-              '$completed/${habits.length} навика',
+              '$completed/$total изпълнени',
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 180),
             width: 16,
