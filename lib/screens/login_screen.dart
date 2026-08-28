@@ -43,8 +43,7 @@ class _LoginScreenState extends State<LoginScreen> {
       _saving = true;
     });
 
-    final prefs =
-        await SharedPreferences.getInstance();
+    final prefs = await SharedPreferences.getInstance();
 
     await prefs.setString(
       'user_name',
@@ -76,16 +75,14 @@ class _LoginScreenState extends State<LoginScreen> {
                 maxWidth: 420,
               ),
               child: Column(
-                mainAxisAlignment:
-                    MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Container(
                     width: 90,
                     height: 90,
                     decoration: BoxDecoration(
                       color: AppColors.accent,
-                      borderRadius:
-                          BorderRadius.circular(26),
+                      borderRadius: BorderRadius.circular(26),
                     ),
                     child: const Icon(
                       Icons.check_rounded,
@@ -137,8 +134,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   TextField(
                     controller: _nameController,
-                    textCapitalization:
-                        TextCapitalization.words,
+                    textCapitalization: TextCapitalization.words,
                     style: const TextStyle(
                       color: Colors.white,
                     ),
@@ -153,15 +149,15 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       filled: true,
                       fillColor: AppColors.surface,
-                      border: OutlineInputBorder(
-                        borderRadius:
-                            BorderRadius.circular(16),
+                      border: const OutlineInputBorder(
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(16),
+                        ),
                         borderSide: BorderSide.none,
                       ),
                       focusedBorder: OutlineInputBorder(
-                        borderRadius:
-                            BorderRadius.circular(16),
-                        borderSide: BorderSide(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: const BorderSide(
                           color: AppColors.accent,
                           width: 2,
                         ),
@@ -176,15 +172,12 @@ class _LoginScreenState extends State<LoginScreen> {
                     width: double.infinity,
                     height: 54,
                     child: ElevatedButton(
-                      onPressed:
-                          _saving ? null : _continue,
+                      onPressed: _saving ? null : _continue,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                            AppColors.accent,
+                        backgroundColor: AppColors.accent,
                         foregroundColor: Colors.black,
                         disabledBackgroundColor:
-                            AppColors.accent
-                                .withValues(alpha: 0.5),
+                            AppColors.accent.withValues(alpha: 0.5),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
                         ),
@@ -193,8 +186,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ? const SizedBox(
                               width: 22,
                               height: 22,
-                              child:
-                                  CircularProgressIndicator(
+                              child: CircularProgressIndicator(
                                 strokeWidth: 2.5,
                                 color: Colors.black,
                               ),
@@ -203,8 +195,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               'Продължи',
                               style: TextStyle(
                                 fontSize: 16,
-                                fontWeight:
-                                    FontWeight.bold,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
                     ),
