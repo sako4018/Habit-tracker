@@ -1,27 +1,29 @@
-import 'package:device_preview/device_preview.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:device_preview/device_preview.dart';
 
 import 'screens/login_screen.dart';
 import 'screens/root_shell.dart';
 import 'theme/app_colors.dart';
 
 void main() {
-  DevicePreview.enable();
-
-  runApp(const HabitTrackerApp());
+  runApp(
+    DevicePreview(
+      enabled: !kReleaseMode,
+      builder: (context) => const HabitTrackerApp(),
+    ),
+  );
 }
 
 class HabitTrackerApp extends StatefulWidget {
   const HabitTrackerApp({super.key});
 
   @override
-  State<HabitTrackerApp> createState() =>
-      _HabitTrackerAppState();
+  State<HabitTrackerApp> createState() => _HabitTrackerAppState();
 }
 
-class _HabitTrackerAppState
-    extends State<HabitTrackerApp> {
+class _HabitTrackerAppState extends State<HabitTrackerApp> {
   bool _loading = true;
   bool _isLoggedIn = false;
 
@@ -32,8 +34,7 @@ class _HabitTrackerAppState
   }
 
   Future<void> _checkLogin() async {
-    final prefs =
-        await SharedPreferences.getInstance();
+    final prefs = await SharedPreferences.getInstance();
 
     final isLoggedIn =
         prefs.getBool('is_logged_in') ?? false;
@@ -67,7 +68,14 @@ class _HabitTrackerAppState
 
     return MaterialApp(
       title: 'Streakly',
+
       debugShowCheckedModeBanner: false,
+
+      useInheritedMediaQuery: true,
+
+      locale: DevicePreview.locale(context),
+
+      builder: DevicePreview.appBuilder,
 
       theme: ThemeData(
         useMaterial3: true,

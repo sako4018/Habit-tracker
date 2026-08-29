@@ -73,11 +73,54 @@ class HomeScreen extends StatelessWidget {
               )
             : CustomScrollView(
                 slivers: [
+                  // =====================================================
+                  // STREAKLY HEADER
+                  // =====================================================
+
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(
                         20,
+                        16,
                         20,
+                        4,
+                      ),
+                      child: Row(
+                        children: [
+                          ClipRRect(
+                            borderRadius:
+                                BorderRadius.circular(12),
+                            child: Image.asset(
+                              'assets/icon/streakly_icon.png',
+                              width: 42,
+                              height: 42,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          const Text(
+                            'Streakly',
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                              letterSpacing: -0.5,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  // =====================================================
+                  // TODAY HEADER
+                  // =====================================================
+
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(
+                        20,
+                        12,
                         20,
                         8,
                       ),
@@ -107,6 +150,10 @@ class HomeScreen extends StatelessWidget {
                       ),
                     ),
                   ),
+
+                  // =====================================================
+                  // CONTRIBUTION
+                  // =====================================================
 
                   if (habits.isNotEmpty || tasks.isNotEmpty)
                     SliverToBoxAdapter(
@@ -178,6 +225,10 @@ class HomeScreen extends StatelessWidget {
                       ),
                     ),
 
+                  // =====================================================
+                  // TASKS FOR TODAY
+                  // =====================================================
+
                   if (todayTasks.isNotEmpty)
                     SliverToBoxAdapter(
                       child: Padding(
@@ -236,6 +287,10 @@ class HomeScreen extends StatelessWidget {
                         ),
                       ),
                     ),
+
+                  // =====================================================
+                  // HABITS
+                  // =====================================================
 
                   if (habits.isNotEmpty)
                     SliverToBoxAdapter(
@@ -309,6 +364,10 @@ class HomeScreen extends StatelessWidget {
                 ],
               ),
       ),
+
+      // ===============================================================
+      // ADD BUTTON
+      // ===============================================================
 
       floatingActionButton:
           FloatingActionButton.extended(
@@ -399,6 +458,10 @@ class HomeScreen extends StatelessWidget {
     );
   }
 }
+
+// =====================================================================
+// TASK CARD
+// =====================================================================
 
 class _TaskCard extends StatelessWidget {
   final Task task;
