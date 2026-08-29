@@ -3,11 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:device_preview/device_preview.dart';
 
+import 'services/notification_service.dart';
 import 'screens/login_screen.dart';
 import 'screens/root_shell.dart';
 import 'theme/app_colors.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await NotificationService.instance.initialize();
+
   runApp(
     DevicePreview(
       enabled: !kReleaseMode,
@@ -15,7 +20,6 @@ void main() {
     ),
   );
 }
-
 class HabitTrackerApp extends StatefulWidget {
   const HabitTrackerApp({super.key});
 
