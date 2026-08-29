@@ -77,21 +77,31 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  // --------------------------------------------------
+                  // STREAKLY LOGO
+                  // --------------------------------------------------
+
                   Container(
-                    width: 90,
-                    height: 90,
+                    width: 180,
+                    height: 180,
                     decoration: BoxDecoration(
                       color: AppColors.accent,
-                      borderRadius: BorderRadius.circular(26),
+                      borderRadius: BorderRadius.circular(32),
                     ),
-                    child: const Icon(
-                      Icons.check_rounded,
-                      color: Colors.black,
-                      size: 52,
+                    clipBehavior: Clip.antiAlias,
+                    child: Image.asset(
+                      'assets/icon/streakly_icon.png',
+                      width: 150,
+                      height: 150,
+                      fit: BoxFit.cover,
                     ),
                   ),
 
                   const SizedBox(height: 28),
+
+                  // --------------------------------------------------
+                  // APP NAME
+                  // --------------------------------------------------
 
                   const Text(
                     'Habit Tracker',
@@ -104,6 +114,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
 
                   const SizedBox(height: 8),
+
+                  // --------------------------------------------------
+                  // DESCRIPTION
+                  // --------------------------------------------------
 
                   Text(
                     'Изгради добри навици.\n'
@@ -118,6 +132,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   const SizedBox(height: 42),
 
+                  // --------------------------------------------------
+                  // NAME LABEL
+                  // --------------------------------------------------
+
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
@@ -131,6 +149,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
 
                   const SizedBox(height: 10),
+
+                  // --------------------------------------------------
+                  // NAME INPUT
+                  // --------------------------------------------------
 
                   TextField(
                     controller: _nameController,
@@ -167,6 +189,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
 
                   const SizedBox(height: 18),
+
+                  // --------------------------------------------------
+                  // CONTINUE BUTTON
+                  // --------------------------------------------------
 
                   SizedBox(
                     width: double.infinity,

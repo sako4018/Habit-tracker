@@ -71,8 +71,6 @@ class _HabitTrackerAppState extends State<HabitTrackerApp> {
 
       debugShowCheckedModeBanner: false,
 
-      useInheritedMediaQuery: true,
-
       locale: DevicePreview.locale(context),
 
       builder: DevicePreview.appBuilder,
