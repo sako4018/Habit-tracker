@@ -1,11 +1,15 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 
 import '../models/habit.dart';
 import '../models/task.dart';
+import '../services/profile_storage.dart';
 import '../theme/app_colors.dart';
 import '../widgets/contribution_heatmap.dart';
 import '../widgets/heatmap_legend.dart';
 import '../widgets/habit_card.dart';
+import 'profile_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   final List<Habit> habits;
@@ -74,7 +78,7 @@ class HomeScreen extends StatelessWidget {
             : CustomScrollView(
                 slivers: [
                   // =====================================================
-                  // STREAKLY HEADER
+                  // PROFILE HEADER
                   // =====================================================
 
                   SliverToBoxAdapter(
@@ -85,29 +89,62 @@ class HomeScreen extends StatelessWidget {
                         20,
                         4,
                       ),
-                      child: Row(
-                        children: [
-                          ClipRRect(
-                            borderRadius:
-                                BorderRadius.circular(12),
-                            child: Image.asset(
-                              'assets/icon/streakly_icon.png',
-                              width: 42,
-                              height: 42,
-                              fit: BoxFit.cover,
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  const ProfileScreen(),
                             ),
-                          ),
-                          const SizedBox(width: 12),
-                          const Text(
-                            'Streakly',
-                            style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                              letterSpacing: -0.5,
+                          );
+                        },
+                        child: Row(
+                          children: [
+                            ValueListenableBuilder<Uint8List?>(
+                              valueListenable:
+                                  ProfileStorage.photoNotifier,
+                              builder: (context, photo, _) {
+                                return CircleAvatar(
+                                  radius: 21,
+                                  backgroundColor:
+                                      AppColors.surface,
+                                  backgroundImage: photo != null
+                                      ? MemoryImage(photo)
+                                      : null,
+                                  child: photo == null
+                                      ? const Icon(
+                                          Icons.person,
+                                          color: Colors.grey,
+                                          size: 22,
+                                        )
+                                      : null,
+                                );
+                              },
                             ),
-                          ),
-                        ],
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: ValueListenableBuilder<String>(
+                                valueListenable:
+                                    ProfileStorage.nameNotifier,
+                                builder: (context, name, _) {
+                                  return Text(
+                                    name.isEmpty
+                                        ? 'Streakly'
+                                        : name,
+                                    style: const TextStyle(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                      letterSpacing: -0.5,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),

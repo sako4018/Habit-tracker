@@ -1,17 +1,23 @@
+import 'package:device_preview/device_preview.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:device_preview/device_preview.dart';
 
-import 'services/notification_service.dart';
 import 'screens/login_screen.dart';
 import 'screens/root_shell.dart';
+import 'services/notification_service.dart';
+import 'services/profile_storage.dart';
 import 'theme/app_colors.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Стартираме системата за известия преди приложението.
   await NotificationService.instance.initialize();
+
+  // Зареждаме профилните данни (име и снимка), за да са налични
+  // веднага при показване на Home screen.
+  await ProfileStorage.loadIntoNotifiers();
 
   runApp(
     DevicePreview(
@@ -20,6 +26,7 @@ Future<void> main() async {
     ),
   );
 }
+
 class HabitTrackerApp extends StatefulWidget {
   const HabitTrackerApp({super.key});
 

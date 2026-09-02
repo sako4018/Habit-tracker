@@ -1,9 +1,14 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 
 import '../services/habit_storage.dart';
 import '../services/notification_service.dart';
+import '../services/profile_storage.dart';
 import '../theme/app_colors.dart';
 import '../widgets/section_card.dart';
+import 'profile_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   final VoidCallback onDataCleared;
@@ -19,6 +24,7 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   bool _notificationsEnabled = false;
+
   TimeOfDay _notificationTime = const TimeOfDay(
     hour: 20,
     minute: 0,
@@ -26,10 +32,43 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   bool _loadingNotifications = true;
 
+  String _userName = '';
+  Uint8List? _userPhoto;
+  bool _loadingProfile = true;
+
   @override
   void initState() {
     super.initState();
     _loadNotificationSettings();
+    _loadProfile();
+  }
+
+  Future<void> _loadProfile() async {
+    final name = await ProfileStorage.getName();
+    final photoBase64 = await ProfileStorage.getPhotoBase64();
+
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _userName = name;
+      _userPhoto = photoBase64 != null ? base64Decode(photoBase64) : null;
+      _loadingProfile = false;
+    });
+  }
+
+  Future<void> _openProfile() async {
+    final result = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const ProfileScreen(),
+      ),
+    );
+
+    if (result == true) {
+      _loadProfile();
+    }
   }
 
   Future<void> _loadNotificationSettings() async {
@@ -45,10 +84,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     setState(() {
       _notificationsEnabled = enabled;
+
       _notificationTime = TimeOfDay(
         hour: hour,
         minute: minute,
       );
+
       _loadingNotifications = false;
     });
   }
@@ -74,14 +115,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
         return;
       }
 
-      await NotificationService.instance
-          .scheduleDailyNotification(
+      await NotificationService.instance.scheduleDailyNotification(
         hour: _notificationTime.hour,
         minute: _notificationTime.minute,
       );
     } else {
-      await NotificationService.instance
-          .cancelDailyNotification();
+      await NotificationService.instance.cancelDailyNotification();
     }
 
     if (!mounted) {
@@ -111,8 +150,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     });
 
     if (_notificationsEnabled) {
-      await NotificationService.instance
-          .scheduleDailyNotification(
+      await NotificationService.instance.scheduleDailyNotification(
         hour: selectedTime.hour,
         minute: selectedTime.minute,
       );
@@ -121,51 +159,40 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   String _formatTime(TimeOfDay time) {
     final hour = time.hour.toString().padLeft(2, '0');
-    final minute =
-        time.minute.toString().padLeft(2, '0');
-
+    final minute = time.minute.toString().padLeft(2, '0');
     return '$hour:$minute';
   }
 
   Future<void> _confirmClear(BuildContext context) async {
-    final confirmed =
-        await showDialog<bool>(
-              context: context,
-              builder: (ctx) => AlertDialog(
-                backgroundColor: AppColors.surface,
-                title: const Text(
-                  'Изчистване на данни',
-                  style: TextStyle(
-                    color: Colors.white,
-                  ),
-                ),
-                content: const Text(
-                  'Това ще изтрие всички навици и историята им. '
-                  'Действието не може да бъде отменено.',
-                  style: TextStyle(
-                    color: Colors.white70,
-                  ),
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () =>
-                        Navigator.pop(ctx, false),
-                    child: const Text('Отказ'),
-                  ),
-                  TextButton(
-                    onPressed: () =>
-                        Navigator.pop(ctx, true),
-                    child: const Text(
-                      'Изчисти',
-                      style: TextStyle(
-                        color: Colors.redAccent,
-                      ),
-                    ),
-                  ),
-                ],
+    final confirmed = await showDialog<bool>(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            backgroundColor: AppColors.surface,
+            title: const Text(
+              'Изчистване на данни',
+              style: TextStyle(color: Colors.white),
+            ),
+            content: const Text(
+              'Това ще изтрие всички навици и историята им. '
+              'Действието не може да бъде отменено.',
+              style: TextStyle(color: Colors.white70),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx, false),
+                child: const Text('Отказ'),
               ),
-            ) ??
-            false;
+              TextButton(
+                onPressed: () => Navigator.pop(ctx, true),
+                child: const Text(
+                  'Изчисти',
+                  style: TextStyle(color: Colors.redAccent),
+                ),
+              ),
+            ],
+          ),
+        ) ??
+        false;
 
     if (confirmed) {
       await HabitStorage.clearAll();
@@ -183,15 +210,59 @@ class _SettingsScreenState extends State<SettingsScreen> {
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
+          const Padding(
+            padding: EdgeInsets.fromLTRB(16, 0, 16, 8),
+            child: Text(
+              'ПРОФИЛ',
+              style: TextStyle(
+                color: Colors.grey,
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 1,
+              ),
+            ),
+          ),
+
+          SectionCard(
+            children: [
+              ListTile(
+                onTap: _openProfile,
+                leading: CircleAvatar(
+                  radius: 22,
+                  backgroundColor: AppColors.background,
+                  backgroundImage:
+                      _userPhoto != null ? MemoryImage(_userPhoto!) : null,
+                  child: _userPhoto == null
+                      ? const Icon(
+                          Icons.person,
+                          color: Colors.grey,
+                        )
+                      : null,
+                ),
+                title: Text(
+                  _loadingProfile
+                      ? '...'
+                      : (_userName.isEmpty ? 'Профил' : _userName),
+                  style: const TextStyle(color: Colors.white),
+                ),
+                subtitle: const Text(
+                  'Име / снимка',
+                  style: TextStyle(color: Colors.grey, fontSize: 13),
+                ),
+                trailing: const Icon(
+                  Icons.chevron_right,
+                  color: Colors.grey,
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 20),
+
           SectionCard(
             children: [
               const Padding(
-                padding: EdgeInsets.fromLTRB(
-                  16,
-                  12,
-                  16,
-                  8,
-                ),
+                padding: EdgeInsets.fromLTRB(16, 12, 16, 8),
                 child: Text(
                   'ИЗВЕСТИЯ',
                   style: TextStyle(
@@ -202,7 +273,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                 ),
               ),
-
               ListTile(
                 leading: Icon(
                   Icons.notifications_outlined,
@@ -212,9 +282,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 title: const Text(
                   'Ежедневни напомняния',
-                  style: TextStyle(
-                    color: Colors.white,
-                  ),
+                  style: TextStyle(color: Colors.white),
                 ),
                 subtitle: Text(
                   _notificationsEnabled
@@ -229,9 +297,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ? const SizedBox(
                         width: 22,
                         height: 22,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                        ),
+                        child: CircularProgressIndicator(strokeWidth: 2),
                       )
                     : Switch(
                         value: _notificationsEnabled,
@@ -239,13 +305,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         activeThumbColor: AppColors.accent,
                       ),
               ),
-
               if (_notificationsEnabled) ...[
-                const Divider(
-                  color: Colors.white10,
-                  height: 1,
-                ),
-
+                const Divider(color: Colors.white10, height: 1),
                 ListTile(
                   onTap: _selectNotificationTime,
                   leading: Icon(
@@ -254,16 +315,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                   title: const Text(
                     'Час на напомняне',
-                    style: TextStyle(
-                      color: Colors.white,
-                    ),
+                    style: TextStyle(color: Colors.white),
                   ),
                   subtitle: const Text(
                     'Всеки ден по това време',
-                    style: TextStyle(
-                      color: Colors.grey,
-                      fontSize: 13,
-                    ),
+                    style: TextStyle(color: Colors.grey, fontSize: 13),
                   ),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -363,9 +419,7 @@ class SettingsRow extends StatelessWidget {
       ),
       title: Text(
         title,
-        style: TextStyle(
-          color: titleColor ?? Colors.white,
-        ),
+        style: TextStyle(color: titleColor ?? Colors.white),
       ),
       trailing: trailing,
     );
