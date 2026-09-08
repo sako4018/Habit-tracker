@@ -29,7 +29,7 @@ class StatCard extends StatelessWidget {
           children: [
             Text(
               value,
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppColors.accent,
                 fontSize: 22,
                 fontWeight: FontWeight.bold,

@@ -70,7 +70,7 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       body: SafeArea(
         child: loading
-            ? const Center(
+            ? Center(
                 child: CircularProgressIndicator(
                   color: AppColors.accent,
                 ),
@@ -330,15 +330,15 @@ class HomeScreen extends StatelessWidget {
                   // =====================================================
 
                   if (habits.isNotEmpty)
-                    SliverToBoxAdapter(
+                    const SliverToBoxAdapter(
                       child: Padding(
-                        padding: const EdgeInsets.fromLTRB(
+                        padding: EdgeInsets.fromLTRB(
                           16,
                           16,
                           16,
                           4,
                         ),
-                        child: const Text(
+                        child: Text(
                           'Навици',
                           style: TextStyle(
                             color: Colors.white,

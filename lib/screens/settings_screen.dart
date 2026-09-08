@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import '../services/habit_storage.dart';
 import '../services/notification_service.dart';
 import '../services/profile_storage.dart';
+import '../theme/accent_color_controller.dart';
 import '../theme/app_colors.dart';
 import '../widgets/section_card.dart';
 import 'profile_screen.dart';
@@ -161,6 +162,97 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final hour = time.hour.toString().padLeft(2, '0');
     final minute = time.minute.toString().padLeft(2, '0');
     return '$hour:$minute';
+  }
+
+  Future<void> _openAccentPicker(BuildContext context) async {
+    await showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: AppColors.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(24),
+        ),
+      ),
+      builder: (sheetContext) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Акцентен цвят',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Wrap(
+                  spacing: 18,
+                  runSpacing: 18,
+                  alignment: WrapAlignment.center,
+                  children: AccentColorController.options.map((option) {
+                    return GestureDetector(
+                      onTap: () async {
+                        await AccentColorController.instance
+                            .setColor(option.color);
+
+                        if (sheetContext.mounted) {
+                          Navigator.pop(sheetContext);
+                        }
+                      },
+                      child: Column(
+                        children: [
+                          ValueListenableBuilder<Color>(
+                            valueListenable:
+                                AccentColorController.instance.notifier,
+                            builder: (context, current, _) {
+                              final selected = current == option.color;
+
+                              return Container(
+                                width: 48,
+                                height: 48,
+                                decoration: BoxDecoration(
+                                  color: option.color,
+                                  shape: BoxShape.circle,
+                                  border: selected
+                                      ? Border.all(
+                                          color: Colors.white,
+                                          width: 3,
+                                        )
+                                      : null,
+                                ),
+                                child: selected
+                                    ? const Icon(
+                                        Icons.check,
+                                        color: Colors.black,
+                                      )
+                                    : null,
+                              );
+                            },
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            option.name,
+                            style: TextStyle(
+                              color: Colors.grey.shade400,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                ),
+                const SizedBox(height: 10),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   Future<void> _confirmClear(BuildContext context) async {
@@ -326,7 +418,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     children: [
                       Text(
                         _formatTime(_notificationTime),
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: AppColors.accent,
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -348,16 +440,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
           SectionCard(
             children: [
-              SettingsRow(
-                icon: Icons.palette_outlined,
-                title: 'Акцентен цвят',
-                trailing: Container(
-                  width: 22,
-                  height: 22,
-                  decoration: const BoxDecoration(
-                    color: AppColors.accent,
-                    shape: BoxShape.circle,
-                  ),
+              ListTile(
+                onTap: () => _openAccentPicker(context),
+                leading: const Icon(
+                  Icons.palette_outlined,
+                  color: Colors.grey,
+                ),
+                title: const Text(
+                  'Акцентен цвят',
+                  style: TextStyle(color: Colors.white),
+                ),
+                trailing: ValueListenableBuilder<Color>(
+                  valueListenable: AccentColorController.instance.notifier,
+                  builder: (context, color, _) {
+                    return Container(
+                      width: 22,
+                      height: 22,
+                      decoration: BoxDecoration(
+                        color: color,
+                        shape: BoxShape.circle,
+                      ),
+                    );
+                  },
                 ),
               ),
             ],

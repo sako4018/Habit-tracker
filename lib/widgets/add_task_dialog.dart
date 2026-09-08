@@ -32,7 +32,7 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.dark(
+            colorScheme: ColorScheme.dark(
               primary: AppColors.accent,
               onPrimary: Colors.black,
               surface: AppColors.surface,
@@ -113,7 +113,7 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(14),
-                borderSide: const BorderSide(
+                borderSide: BorderSide(
                   color: AppColors.accent,
                   width: 2,
                 ),
@@ -139,7 +139,7 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
               ),
               child: Row(
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.calendar_today,
                     color: AppColors.accent,
                     size: 20,

@@ -123,7 +123,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     if (_loading) {
-      return const Scaffold(
+      return Scaffold(
         backgroundColor: AppColors.background,
         body: Center(
           child: CircularProgressIndicator(
@@ -166,7 +166,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     child: Container(
                       width: 36,
                       height: 36,
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                         color: AppColors.accent,
                         shape: BoxShape.circle,
                       ),
@@ -229,7 +229,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(16),
-                borderSide: const BorderSide(
+                borderSide: BorderSide(
                   color: AppColors.accent,
                   width: 2,
                 ),

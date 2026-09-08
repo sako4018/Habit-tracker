@@ -144,7 +144,7 @@ class _CheckButtonState extends State<CheckButton>
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: widget.isDone
-                    ? const Icon(
+                    ? Icon(
                         Icons.check,
                         color: AppColors.accent,
                         size: 21,
@@ -211,7 +211,7 @@ class _BurstEffectState extends State<_BurstEffect>
               opacity: (1 - t).clamp(0.0, 1.0),
               child: Transform.translate(
                 offset: Offset(dx, dy),
-                child: const Icon(
+                child: Icon(
                   Icons.star,
                   size: 10,
                   color: AppColors.accent,

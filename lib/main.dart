@@ -7,6 +7,7 @@ import 'screens/login_screen.dart';
 import 'screens/root_shell.dart';
 import 'services/notification_service.dart';
 import 'services/profile_storage.dart';
+import 'theme/accent_color_controller.dart';
 import 'theme/app_colors.dart';
 
 Future<void> main() async {
@@ -15,9 +16,11 @@ Future<void> main() async {
   // Стартираме системата за известия преди приложението.
   await NotificationService.instance.initialize();
 
-  // Зареждаме профилните данни (име и снимка), за да са налични
-  // веднага при показване на Home screen.
+  // Зареждаме профилните данни (име и снимка).
   await ProfileStorage.loadIntoNotifiers();
+
+  // Зареждаме запазения accent цвят.
+  await AccentColorController.instance.load();
 
   runApp(
     DevicePreview(
@@ -68,81 +71,88 @@ class _HabitTrackerAppState extends State<HabitTrackerApp> {
 
   @override
   Widget build(BuildContext context) {
-    const colorScheme = ColorScheme.dark(
-      primary: AppColors.accent,
-      secondary: AppColors.accent,
-      surface: AppColors.surface,
-      onPrimary: Colors.black,
-      onSurface: Colors.white,
-      error: Colors.redAccent,
-    );
+    // ValueListenableBuilder кара цялото приложение да се пребоядисва
+    // веднага щом accent цветът се смени от Settings.
+    return ValueListenableBuilder<Color>(
+      valueListenable: AccentColorController.instance.notifier,
+      builder: (context, accent, _) {
+        final colorScheme = ColorScheme.dark(
+          primary: accent,
+          secondary: accent,
+          surface: AppColors.surface,
+          onPrimary: Colors.black,
+          onSurface: Colors.white,
+          error: Colors.redAccent,
+        );
 
-    return MaterialApp(
-      title: 'Streakly',
+        return MaterialApp(
+          title: 'Streakly',
 
-      debugShowCheckedModeBanner: false,
+          debugShowCheckedModeBanner: false,
 
-      locale: DevicePreview.locale(context),
+          locale: DevicePreview.locale(context),
 
-      builder: DevicePreview.appBuilder,
+          builder: DevicePreview.appBuilder,
 
-      theme: ThemeData(
-        useMaterial3: true,
-        brightness: Brightness.dark,
-        colorScheme: colorScheme,
+          theme: ThemeData(
+            useMaterial3: true,
+            brightness: Brightness.dark,
+            colorScheme: colorScheme,
 
-        scaffoldBackgroundColor:
-            AppColors.background,
+            scaffoldBackgroundColor:
+                AppColors.background,
 
-        cardColor: AppColors.surface,
+            cardColor: AppColors.surface,
 
-        appBarTheme: const AppBarTheme(
-          backgroundColor: AppColors.background,
-          foregroundColor: Colors.white,
-          elevation: 0,
-        ),
-
-        floatingActionButtonTheme:
-            const FloatingActionButtonThemeData(
-          backgroundColor: AppColors.accent,
-          foregroundColor: Colors.black,
-        ),
-
-        textTheme: ThemeData.dark()
-            .textTheme
-            .apply(
-              bodyColor: Colors.white,
-              displayColor: Colors.white,
+            appBarTheme: const AppBarTheme(
+              backgroundColor: AppColors.background,
+              foregroundColor: Colors.white,
+              elevation: 0,
             ),
 
-        dialogTheme: const DialogThemeData(
-          backgroundColor: AppColors.surface,
-        ),
+            floatingActionButtonTheme:
+                FloatingActionButtonThemeData(
+              backgroundColor: accent,
+              foregroundColor: Colors.black,
+            ),
 
-        bottomNavigationBarTheme:
-            const BottomNavigationBarThemeData(
-          backgroundColor: AppColors.surface,
-          selectedItemColor: AppColors.accent,
-          unselectedItemColor: Colors.grey,
-          type: BottomNavigationBarType.fixed,
-        ),
-      ),
-
-      themeMode: ThemeMode.dark,
-
-      home: _loading
-          ? const Scaffold(
-              body: Center(
-                child: CircularProgressIndicator(
-                  color: AppColors.accent,
+            textTheme: ThemeData.dark()
+                .textTheme
+                .apply(
+                  bodyColor: Colors.white,
+                  displayColor: Colors.white,
                 ),
-              ),
-            )
-          : _isLoggedIn
-              ? const RootShell()
-              : LoginScreen(
-                  onLogin: _login,
-                ),
+
+            dialogTheme: const DialogThemeData(
+              backgroundColor: AppColors.surface,
+            ),
+
+            bottomNavigationBarTheme:
+                BottomNavigationBarThemeData(
+              backgroundColor: AppColors.surface,
+              selectedItemColor: accent,
+              unselectedItemColor: Colors.grey,
+              type: BottomNavigationBarType.fixed,
+            ),
+          ),
+
+          themeMode: ThemeMode.dark,
+
+          home: _loading
+              ? Scaffold(
+                  body: Center(
+                    child: CircularProgressIndicator(
+                      color: accent,
+                    ),
+                  ),
+                )
+              : _isLoggedIn
+                  ? const RootShell()
+                  : LoginScreen(
+                      onLogin: _login,
+                    ),
+        );
+      },
     );
   }
 }
