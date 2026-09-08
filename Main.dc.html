@@ -1,0 +1,179 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: #121212;
+      color: #ffffff;
+      font-family: 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: #BB86FC; }
+    a:hover { color: #a06ee6; }
+    .mono { font-family: 'IBM Plex Mono', ui-monospace, monospace; }
+    .eyebrow {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #6e6e6e;
+    }
+  </style>
+</helmet>
+
+<div style="width: 390px; min-height: 844px; background: #121212; padding: 20px 18px 0; display: flex; flex-direction: column; gap: 22px;">
+
+  <!-- header -->
+  <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 8px;">
+    <div style="display: flex; flex-direction: column; gap: 3px;">
+      <span class="eyebrow">Четвъртък · 8 септември</span>
+      <span style="font-size: 26px; font-weight: 700; letter-spacing: -0.02em;">Днес</span>
+    </div>
+    <div style="width: 40px; height: 40px; border-radius: 999px; background: #1e1e1e; border: 1px solid #2a2a2a; display: flex; align-items: center; justify-content: center;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9e9e9e" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-6 8-6s8 2 8 6"/></svg>
+    </div>
+  </div>
+
+  <!-- hero: today progress -->
+  <div style="display: flex; align-items: center; gap: 20px; background: #1a1a1a; border: 1px solid #262626; border-radius: 20px; padding: 20px;">
+    <div style="position: relative; width: 96px; height: 96px; flex-shrink: 0;">
+      <svg width="96" height="96" viewBox="0 0 96 96">
+        <circle cx="48" cy="48" r="42" fill="none" stroke="#2a2a2a" stroke-width="8"/>
+        <circle cx="48" cy="48" r="42" fill="none" stroke="{{accent}}" stroke-width="8" stroke-linecap="round"
+          stroke-dasharray="264" stroke-dashoffset="71" transform="rotate(-90 48 48)"/>
+      </svg>
+      <div style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+        <span class="mono" style="font-size: 22px; font-weight: 600;">73%</span>
+      </div>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <span class="eyebrow">Изпълнени днес</span>
+      <span style="font-size: 15px; color: #c9c9c9; line-height: 1.4;">
+        <span class="mono" style="font-size: 19px; color: #fff; font-weight: 600;">4</span> навика и
+        <span class="mono" style="font-size: 19px; color: #fff; font-weight: 600;">2</span> задачи</span>
+      <span style="font-size: 13px; color: #6e6e6e;">Остават 2 до пълен ден</span>
+    </div>
+  </div>
+
+  <!-- stat strip -->
+  <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px;">
+    <div style="background: #1a1a1a; border: 1px solid #262626; border-radius: 14px; padding: 12px 12px 11px; display: flex; flex-direction: column; gap: 4px;">
+      <span class="mono" style="font-size: 21px; font-weight: 600;">12</span>
+      <span style="font-size: 11px; color: #6e6e6e;">най-дълъг</span>
+    </div>
+    <div style="background: #1a1a1a; border: 1px solid #262626; border-radius: 14px; padding: 12px 12px 11px; display: flex; flex-direction: column; gap: 4px;">
+      <span class="mono" style="font-size: 21px; font-weight: 600;">89</span>
+      <span style="font-size: 11px; color: #6e6e6e;">общо</span>
+    </div>
+    <div style="background: #1a1a1a; border: 1px solid #262626; border-radius: 14px; padding: 12px 12px 11px; display: flex; flex-direction: column; gap: 4px;">
+      <span class="mono" style="font-size: 21px; font-weight: 600; color: {{accent}};">94%</span>
+      <span style="font-size: 11px; color: #6e6e6e;">30 дни</span>
+    </div>
+  </div>
+
+  <!-- habits -->
+  <div style="display: flex; flex-direction: column; gap: 10px;">
+    <div style="display: flex; align-items: baseline; justify-content: space-between;">
+      <span class="eyebrow">Навици</span>
+      <span class="eyebrow" style="color: #4a4a4a;">14 дни</span>
+    </div>
+
+    <sc-for list="{{habits}}" as="h" hint-placeholder-count="4">
+      <div style="background: #1a1a1a; border: 1px solid #262626; border-radius: 16px; padding: 14px;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div style="width: 40px; height: 40px; border-radius: 12px; background: {{h.chipBg}}; display: flex; align-items: center; justify-content: center; font-size: 19px; flex-shrink: 0;">{{h.emoji}}</div>
+          <div style="display: flex; flex-direction: column; gap: 2px; flex-grow: 1; min-width: 0;">
+            <span style="font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{h.name}}</span>
+            <span style="font-size: 12px; color: #6e6e6e; display: flex; align-items: center; gap: 4px;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="{{accent}}"><path d="M12 2c1 4-2 5-2 8a2 2 0 004 0c0-1 1-2 1-2 2 2 3 4 3 6a6 6 0 01-12 0c0-4 4-6 6-10z"/></svg>
+              <span class="mono" style="color: #c9c9c9; font-weight: 500;">{{h.streak}}</span> дни подред
+            </span>
+          </div>
+          <sc-if value="{{h.done}}" hint-placeholder-val="{{ true }}">
+            <div style="width: 28px; height: 28px; border-radius: 999px; background: {{accent}}; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#121212" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>
+            </div>
+          </sc-if>
+          <sc-if value="{{h.pending}}" hint-placeholder-val="{{ false }}">
+            <div style="width: 28px; height: 28px; border-radius: 999px; border: 2px solid #3a3a3a; flex-shrink: 0;"></div>
+          </sc-if>
+        </div>
+        <div style="display: flex; gap: 3px; margin-top: 12px;">
+          <sc-for list="{{h.cells}}" as="c" hint-placeholder-count="14">
+            <div style="flex-grow: 1; height: 22px; border-radius: 5px; background: {{c.bg}};"></div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+
+  <div style="flex-grow: 1;"></div>
+
+  <!-- bottom nav -->
+  <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); background: #1a1a1a; border-top: 1px solid #262626; margin: 0 -18px; padding: 12px 0 26px;">
+    <div style="display: flex; flex-direction: column; align-items: center; gap: 4px; color: {{accent}};">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M4 6h.01M4 12h.01M4 18h.01"/></svg>
+      <span class="mono" style="font-size: 10px; letter-spacing: 0.06em;">ДНЕС</span>
+    </div>
+    <div style="display: flex; flex-direction: column; align-items: center; gap: 4px; color: #5a5a5a;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V10M10 19V5M16 19v-7M22 19H2"/></svg>
+      <span class="mono" style="font-size: 10px; letter-spacing: 0.06em;">СТАТ</span>
+    </div>
+    <div style="display: flex; flex-direction: column; align-items: center; gap: 4px; color: #5a5a5a;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 00-.1-1l2-1.6-2-3.4-2.4 1a7 7 0 00-1.7-1l-.4-2.5H10l-.4 2.5a7 7 0 00-1.7 1l-2.4-1-2 3.4 2 1.6a7 7 0 000 2l-2 1.6 2 3.4 2.4-1a7 7 0 001.7 1l.4 2.5h4l.4-2.5a7 7 0 001.7-1l2.4 1 2-3.4-2-1.6c.1-.3.1-.7.1-1z"/></svg>
+      <span class="mono" style="font-size: 10px; letter-spacing: 0.06em;">НАСТР</span>
+    </div>
+  </div>
+
+</div>
+
+</x-dc>
+<script data-dc-script data-props='{"accent":{"editor":"color","default":"#BB86FC","options":["#BB86FC","#64B5F6","#81C784","#FFB74D","#E57373","#F06292"]}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const accent = this.props.accent ?? '#BB86FC';
+
+    const hex = accent.replace('#', '');
+    const r = parseInt(hex.slice(0, 2), 16);
+    const g = parseInt(hex.slice(2, 4), 16);
+    const b = parseInt(hex.slice(4, 6), 16);
+    const tint = (a) => `rgba(${r}, ${g}, ${b}, ${a})`;
+
+    const strip = (pattern) => pattern.split('').map((ch) => {
+      if (ch === '4') return { bg: accent };
+      if (ch === '3') return { bg: tint(0.6) };
+      if (ch === '2') return { bg: tint(0.32) };
+      if (ch === '1') return { bg: tint(0.16) };
+      return { bg: '#242424' };
+    });
+
+    const raw = [
+      { emoji: '🏃', name: 'Спорт', streak: 12, done: true, pattern: '43443444344344' },
+      { emoji: '📖', name: 'Четене', streak: 4, done: true, pattern: '00234342344340' },
+      { emoji: '💧', name: 'Вода', streak: 21, done: true, pattern: '44444444444444' },
+      { emoji: '🧘', name: 'Медитация', streak: 0, done: false, pattern: '23400021000230' },
+    ];
+
+    return {
+      accent,
+      habits: raw.map((h) => ({
+        ...h,
+        pending: !h.done,
+        chipBg: tint(0.14),
+        cells: strip(h.pattern),
+      })),
+    };
+  }
+}
+</script>
+</body>
+</html>

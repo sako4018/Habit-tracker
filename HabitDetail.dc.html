@@ -1,0 +1,142 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: #121212;
+      color: #ffffff;
+      font-family: 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: #BB86FC; }
+    a:hover { color: #a06ee6; }
+    .mono { font-family: 'IBM Plex Mono', ui-monospace, monospace; }
+    .eyebrow {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #6e6e6e;
+    }
+  </style>
+</helmet>
+
+<div style="width: 390px; min-height: 844px; background: #121212; padding: 20px 18px 40px; display: flex; flex-direction: column; gap: 24px;">
+
+  <!-- nav row -->
+  <div style="display: flex; align-items: center; gap: 14px; padding-top: 8px;">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9e9e9e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    <span class="eyebrow">Навик</span>
+  </div>
+
+  <!-- habit identity -->
+  <div style="display: flex; align-items: center; gap: 14px;">
+    <div style="width: 56px; height: 56px; border-radius: 16px; background: {{chipBg}}; display: flex; align-items: center; justify-content: center; font-size: 26px;">🏃</div>
+    <div style="display: flex; flex-direction: column; gap: 4px;">
+      <span style="font-size: 22px; font-weight: 700; letter-spacing: -0.02em;">Спорт</span>
+      <span style="font-size: 13px; color: #6e6e6e; display: flex; align-items: center; gap: 5px;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="{{accent}}"><path d="M12 2c1 4-2 5-2 8a2 2 0 004 0c0-1 1-2 1-2 2 2 3 4 3 6a6 6 0 01-12 0c0-4 4-6 6-10z"/></svg>
+        <span class="mono" style="color: #c9c9c9;">12</span> дни подред
+      </span>
+    </div>
+  </div>
+
+  <!-- big numbers -->
+  <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; background: #262626; border: 1px solid #262626; border-radius: 16px; overflow: hidden;">
+    <div style="background: #1a1a1a; padding: 16px 12px; display: flex; flex-direction: column; gap: 5px; align-items: center;">
+      <span class="mono" style="font-size: 24px; font-weight: 600; color: {{accent}};">12</span>
+      <span style="font-size: 10px; color: #6e6e6e; letter-spacing: 0.04em;">ТЕКУЩ</span>
+    </div>
+    <div style="background: #1a1a1a; padding: 16px 12px; display: flex; flex-direction: column; gap: 5px; align-items: center;">
+      <span class="mono" style="font-size: 24px; font-weight: 600;">28</span>
+      <span style="font-size: 10px; color: #6e6e6e; letter-spacing: 0.04em;">НАЙ-ДЪЛЪГ</span>
+    </div>
+    <div style="background: #1a1a1a; padding: 16px 12px; display: flex; flex-direction: column; gap: 5px; align-items: center;">
+      <span class="mono" style="font-size: 24px; font-weight: 600;">94</span>
+      <span style="font-size: 10px; color: #6e6e6e; letter-spacing: 0.04em;">ОБЩО</span>
+    </div>
+  </div>
+
+  <!-- month calendar -->
+  <div style="background: #1a1a1a; border: 1px solid #262626; border-radius: 18px; padding: 18px; display: flex; flex-direction: column; gap: 14px;">
+    <div style="display: flex; align-items: center; justify-content: space-between;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6e6e6e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      <span style="font-size: 14px; font-weight: 600;">Септември 2026</span>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6e6e6e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px;">
+      <sc-for list="{{weekdays}}" as="w" hint-placeholder-count="7">
+        <span class="mono" style="font-size: 10px; color: #5a5a5a; text-align: center;">{{w}}</span>
+      </sc-for>
+      <sc-for list="{{days}}" as="d" hint-placeholder-count="35">
+        <div style="aspect-ratio: 1; border-radius: 8px; background: {{d.bg}}; display: flex; align-items: center; justify-content: center;">
+          <span class="mono" style="font-size: 11px; color: {{d.fg}};">{{d.n}}</span>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <!-- 6-month trend -->
+  <div style="display: flex; flex-direction: column; gap: 12px;">
+    <span class="eyebrow">Отчитания на месец</span>
+    <div style="display: flex; align-items: flex-end; gap: 8px; height: 90px;">
+      <sc-for list="{{months}}" as="m" hint-placeholder-count="6">
+        <div style="flex-grow: 1; display: flex; flex-direction: column; align-items: center; gap: 6px;">
+          <div style="width: 100%; height: {{m.h}}; border-radius: 6px 6px 3px 3px; background: {{m.bg}};"></div>
+          <span class="mono" style="font-size: 9px; color: #5a5a5a;">{{m.label}}</span>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+</div>
+
+</x-dc>
+<script data-dc-script data-props='{"accent":{"editor":"color","default":"#BB86FC","options":["#BB86FC","#64B5F6","#81C784","#FFB74D","#E57373","#F06292"]}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const accent = this.props.accent ?? '#BB86FC';
+    const hex = accent.replace('#', '');
+    const r = parseInt(hex.slice(0, 2), 16);
+    const g = parseInt(hex.slice(2, 4), 16);
+    const b = parseInt(hex.slice(4, 6), 16);
+    const tint = (a) => `rgba(${r}, ${g}, ${b}, ${a})`;
+
+    const weekdays = ['П', 'В', 'С', 'Ч', 'П', 'С', 'Н'];
+
+    // 4 leading blanks, then 1..30
+    const done = new Set([1, 2, 3, 5, 6, 7, 8, 10, 12, 13, 14, 15, 17, 18, 19, 20, 22, 23, 24, 25, 26, 27, 28]);
+    const days = [];
+    for (let i = 0; i < 4; i++) days.push({ n: '', bg: 'transparent', fg: 'transparent' });
+    for (let n = 1; n <= 30; n++) {
+      const isDone = done.has(n);
+      days.push({
+        n: String(n),
+        bg: isDone ? accent : '#242424',
+        fg: isDone ? '#121212' : '#8a8a8a',
+      });
+    }
+
+    const heights = [46, 58, 40, 72, 84, 62];
+    const months = ['апр', 'май', 'юни', 'юли', 'авг', 'сеп'].map((label, i) => ({
+      label,
+      h: heights[i] + 'px',
+      bg: i === 4 ? accent : tint(0.3),
+    }));
+
+    return { accent, chipBg: tint(0.14), weekdays, days, months };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+{
+  "artboards": [
+    { "file": "Main.dc.html", "x": 0, "y": 0, "w": 390, "h": 1180, "title": "Днес" },
+    { "file": "Stats.dc.html", "x": 510, "y": 0, "w": 390, "h": 1180, "title": "Статистика" },
+    { "file": "HabitDetail.dc.html", "x": 1020, "y": 0, "w": 390, "h": 1120, "title": "Навик" }
+  ],
+  "annotations": [
+    { "id": "note-intro", "x": 0, "y": -150, "w": 900, "text": "Streakly — посока \"data-forward\". Тъмна тема запазена (#121212 / #1E1E1E), акцентният цвят е tweak горе (същите 6 цвята като в приложението). Ново: IBM Plex Sans + Plex Mono за числата, прогрес пръстени, мини heatmap лента на всеки навик, годишният heatmap като герой в Статистика." }
+  ],
+  "launch": { "view": "canvas" }
+}
