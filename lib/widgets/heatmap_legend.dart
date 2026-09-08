@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../theme/app_colors.dart';
 import 'contribution_heatmap.dart';
 
 class HeatmapLegend extends StatelessWidget {
@@ -10,13 +11,12 @@ class HeatmapLegend extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
-      mainAxisAlignment:
-          MainAxisAlignment.end,
+      mainAxisAlignment: MainAxisAlignment.end,
       children: [
-        Text(
+        const Text(
           'По-малко',
           style: TextStyle(
-            color: Colors.grey.shade500,
+            color: AppColors.textFaint,
             fontSize: 10,
           ),
         ),
@@ -26,18 +26,13 @@ class HeatmapLegend extends StatelessWidget {
         ...ContributionHeatmap.levels.map(
           (color) {
             return Padding(
-              padding:
-                  const EdgeInsets.only(
-                left: 3,
-              ),
+              padding: const EdgeInsets.only(left: 3),
               child: Container(
                 width: 11,
                 height: 11,
-                decoration:
-                    BoxDecoration(
+                decoration: BoxDecoration(
                   color: color,
-                  borderRadius:
-                      BorderRadius.circular(3),
+                  borderRadius: BorderRadius.circular(3),
                 ),
               ),
             );
@@ -46,10 +41,10 @@ class HeatmapLegend extends StatelessWidget {
 
         const SizedBox(width: 6),
 
-        Text(
+        const Text(
           'Повече',
           style: TextStyle(
-            color: Colors.grey.shade500,
+            color: AppColors.textFaint,
             fontSize: 10,
           ),
         ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../models/habit.dart';
 import '../models/task.dart';
+import '../theme/app_colors.dart';
 
 class ContributionHeatmap extends StatelessWidget {
   final List<Habit> habits;
@@ -15,13 +16,8 @@ class ContributionHeatmap extends StatelessWidget {
     this.weeks = 5,
   });
 
-  static const List<Color> levels = [
-    Color(0xFF202A23),
-    Color(0xFF123D20),
-    Color(0xFF176B2C),
-    Color(0xFF26A641),
-    Color(0xFF39D353),
-  ];
+  /// Стълбицата се тонира с текущия акцентен цвят.
+  static List<Color> get levels => AppColors.heatmapLevels;
 
   static const List<String> _monthNames = [
     'Януари',
@@ -176,8 +172,8 @@ class ContributionHeatmap extends StatelessWidget {
                       child: Center(
                         child: Text(
                           weekDays[weekdayIndex],
-                          style: TextStyle(
-                            color: Colors.grey.shade500,
+                          style: const TextStyle(
+                            color: AppColors.textFaint,
                             fontSize: 10,
                           ),
                         ),
@@ -345,7 +341,7 @@ class ContributionHeatmap extends StatelessWidget {
           borderRadius: BorderRadius.circular(3),
           border: isToday
               ? Border.all(
-                  color: const Color(0xFF7CFF8C),
+                  color: AppColors.textPrimary,
                   width: 1.5,
                 )
               : null,
@@ -384,7 +380,7 @@ class ContributionHeatmap extends StatelessWidget {
               borderRadius: BorderRadius.circular(3),
               border: isToday
                   ? Border.all(
-                      color: const Color(0xFF7CFF8C),
+                      color: AppColors.textPrimary,
                       width: 2,
                     )
                   : null,
