@@ -2,21 +2,18 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../services/notification_service.dart';
 import '../services/profile_storage.dart';
+import '../state/app_state.dart';
 import '../theme/accent_color_controller.dart';
 import '../theme/app_colors.dart';
 import '../widgets/section_card.dart';
 import 'profile_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
-  final VoidCallback onDataCleared;
-
-  const SettingsScreen({
-    super.key,
-    required this.onDataCleared,
-  });
+  const SettingsScreen({super.key});
 
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
@@ -285,9 +282,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ) ??
         false;
 
-    if (confirmed) {
-      // Самото изчистване (навици + задачи) се прави в onDataCleared.
-      widget.onDataCleared();
+    if (confirmed && context.mounted) {
+      await context.read<AppState>().clearAllData();
     }
   }
 

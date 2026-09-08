@@ -1,21 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-import '../models/habit.dart';
+import '../state/app_state.dart';
 import '../theme/app_colors.dart';
 import '../widgets/contribution_heatmap.dart';
 import '../widgets/heatmap_legend.dart';
 import '../widgets/stat_card.dart';
 
 class StatsScreen extends StatelessWidget {
-  final List<Habit> habits;
-
-  const StatsScreen({
-    super.key,
-    required this.habits,
-  });
+  const StatsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final habits = context.watch<AppState>().habits;
+
     final totalCheckIns = habits.fold<int>(
       0,
       (sum, habit) => sum + habit.totalCompleted,

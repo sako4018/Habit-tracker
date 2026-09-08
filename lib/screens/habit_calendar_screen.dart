@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../models/habit.dart';
+import '../state/app_state.dart';
 import '../theme/app_colors.dart';
 
 class HabitCalendarScreen extends StatefulWidget {
   final Habit habit;
-  final VoidCallback onChanged;
 
   const HabitCalendarScreen({
     super.key,
     required this.habit,
-    required this.onChanged,
   });
 
   @override
@@ -88,11 +88,10 @@ class _HabitCalendarScreenState
       return;
     }
 
-    setState(() {
-      widget.habit.toggle(day);
-    });
+    context.read<AppState>().toggleHabitOn(widget.habit, day);
 
-    widget.onChanged();
+    // Локален setState, за да се преначертае календарната мрежа.
+    setState(() {});
   }
 
   @override

@@ -1,47 +1,24 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../models/habit.dart';
 import '../models/task.dart';
 import '../services/profile_storage.dart';
+import '../state/app_state.dart';
 import '../theme/app_colors.dart';
+import '../widgets/add_habit_dialog.dart';
+import '../widgets/add_task_dialog.dart';
 import '../widgets/contribution_heatmap.dart';
 import '../widgets/heatmap_legend.dart';
 import '../widgets/habit_card.dart';
+import 'habit_calendar_screen.dart';
 import 'profile_screen.dart';
+import 'year_contribution_screen.dart';
 
 class HomeScreen extends StatelessWidget {
-  final List<Habit> habits;
-  final List<Task> tasks;
-  final bool loading;
-
-  final VoidCallback onAddHabit;
-  final VoidCallback onAddTask;
-
-  final void Function(Habit) onToggleToday;
-  final void Function(Task) onToggleTask;
-
-  final void Function(Habit) onDelete;
-  final void Function(Task) onDeleteTask;
-
-  final void Function(Habit) onOpenCalendar;
-  final VoidCallback onViewYear;
-
-  const HomeScreen({
-    super.key,
-    required this.habits,
-    required this.tasks,
-    required this.loading,
-    required this.onAddHabit,
-    required this.onAddTask,
-    required this.onToggleToday,
-    required this.onToggleTask,
-    required this.onDelete,
-    required this.onDeleteTask,
-    required this.onOpenCalendar,
-    required this.onViewYear,
-  });
+  const HomeScreen({super.key});
 
   bool _isSameDay(DateTime a, DateTime b) {
     return a.year == b.year &&
@@ -49,8 +26,66 @@ class HomeScreen extends StatelessWidget {
         a.day == b.day;
   }
 
+  Future<void> _showAddHabitDialog(BuildContext context) async {
+    final result = await showDialog<Map<String, String>>(
+      context: context,
+      builder: (_) => const AddHabitDialog(),
+    );
+
+    if (result == null || !context.mounted) {
+      return;
+    }
+
+    context.read<AppState>().addHabit(
+          name: result['name']!,
+          emoji: result['emoji']!,
+        );
+  }
+
+  Future<void> _showAddTaskDialog(BuildContext context) async {
+    final result = await showDialog<Map<String, String>>(
+      context: context,
+      builder: (_) => const AddTaskDialog(),
+    );
+
+    if (result == null || !context.mounted) {
+      return;
+    }
+
+    context.read<AppState>().addTask(
+          name: result['name']!,
+          date: DateTime.parse(result['date']!),
+        );
+  }
+
+  void _openCalendar(BuildContext context, Habit habit) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => HabitCalendarScreen(habit: habit),
+      ),
+    );
+  }
+
+  void _openYearContribution(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => YearContributionScreen(
+          habits: context.read<AppState>().habits,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final appState = context.watch<AppState>();
+
+    final habits = appState.habits;
+    final tasks = appState.tasks;
+    final loading = appState.loading;
+
     final today = DateTime.now();
 
     final todayTasks = tasks
@@ -226,7 +261,10 @@ class HomeScreen extends StatelessWidget {
                                     ),
                                   ),
                                   GestureDetector(
-                                    onTap: onViewYear,
+                                    onTap: () =>
+                                        _openYearContribution(
+                                      context,
+                                    ),
                                     child: Row(
                                       children: [
                                         Text(
@@ -314,10 +352,12 @@ class HomeScreen extends StatelessWidget {
                             return _TaskCard(
                               key: ValueKey(task.id),
                               task: task,
-                              onToggle: () =>
-                                  onToggleTask(task),
-                              onDelete: () =>
-                                  onDeleteTask(task),
+                              onToggle: () => context
+                                  .read<AppState>()
+                                  .toggleTask(task),
+                              onDelete: () => context
+                                  .read<AppState>()
+                                  .deleteTask(task),
                             );
                           },
                           childCount: todayTasks.length,
@@ -382,12 +422,14 @@ class HomeScreen extends StatelessWidget {
                             return HabitCard(
                               key: ValueKey(habit.id),
                               habit: habit,
-                              onToggleToday: () =>
-                                  onToggleToday(habit),
-                              onDelete: () =>
-                                  onDelete(habit),
+                              onToggleToday: () => context
+                                  .read<AppState>()
+                                  .toggleHabitToday(habit),
+                              onDelete: () => context
+                                  .read<AppState>()
+                                  .deleteHabit(habit),
                               onOpenCalendar: () =>
-                                  onOpenCalendar(habit),
+                                  _openCalendar(context, habit),
                             );
                           },
                           childCount: habits.length,
@@ -417,7 +459,7 @@ class HomeScreen extends StatelessWidget {
                 top: Radius.circular(24),
               ),
             ),
-            builder: (context) {
+            builder: (sheetContext) {
               return SafeArea(
                 child: Padding(
                   padding: const EdgeInsets.all(20),
@@ -437,8 +479,8 @@ class HomeScreen extends StatelessWidget {
                         width: double.infinity,
                         child: FilledButton.icon(
                           onPressed: () {
-                            Navigator.pop(context);
-                            onAddHabit();
+                            Navigator.pop(sheetContext);
+                            _showAddHabitDialog(context);
                           },
                           icon: const Icon(
                             Icons.repeat,
@@ -463,8 +505,8 @@ class HomeScreen extends StatelessWidget {
                         width: double.infinity,
                         child: OutlinedButton.icon(
                           onPressed: () {
-                            Navigator.pop(context);
-                            onAddTask();
+                            Navigator.pop(sheetContext);
+                            _showAddTaskDialog(context);
                           },
                           icon: const Icon(
                             Icons.task_alt,

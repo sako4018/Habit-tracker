@@ -1,12 +1,14 @@
 import 'package:device_preview/device_preview.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'screens/login_screen.dart';
 import 'screens/root_shell.dart';
 import 'services/notification_service.dart';
 import 'services/profile_storage.dart';
+import 'state/app_state.dart';
 import 'theme/accent_color_controller.dart';
 import 'theme/app_colors.dart';
 
@@ -71,11 +73,14 @@ class _HabitTrackerAppState extends State<HabitTrackerApp> {
 
   @override
   Widget build(BuildContext context) {
-    // ValueListenableBuilder кара цялото приложение да се пребоядисва
-    // веднага щом accent цветът се смени от Settings.
-    return ValueListenableBuilder<Color>(
-      valueListenable: AccentColorController.instance.notifier,
-      builder: (context, accent, _) {
+    // AppState пази навиците и задачите за цялото приложение.
+    return ChangeNotifierProvider<AppState>(
+      create: (_) => AppState()..load(),
+      // ValueListenableBuilder кара цялото приложение да се пребоядисва
+      // веднага щом accent цветът се смени от Settings.
+      child: ValueListenableBuilder<Color>(
+        valueListenable: AccentColorController.instance.notifier,
+        builder: (context, accent, _) {
         final colorScheme = ColorScheme.dark(
           primary: accent,
           secondary: accent,
@@ -151,8 +156,9 @@ class _HabitTrackerAppState extends State<HabitTrackerApp> {
                   : LoginScreen(
                       onLogin: _login,
                     ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 }
