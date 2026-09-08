@@ -8,6 +8,7 @@ import 'screens/login_screen.dart';
 import 'screens/root_shell.dart';
 import 'services/notification_service.dart';
 import 'services/profile_storage.dart';
+import 'services/sound_service.dart';
 import 'state/app_state.dart';
 import 'theme/accent_color_controller.dart';
 import 'theme/app_colors.dart';
@@ -23,6 +24,10 @@ Future<void> main() async {
 
   // Зареждаме запазения accent цвят.
   await AccentColorController.instance.load();
+
+  // Зареждаме звука за завършен навик предварително, за да няма
+  // забавяне при първото докосване.
+  await SoundService.instance.preload();
 
   runApp(
     DevicePreview(

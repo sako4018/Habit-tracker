@@ -1,8 +1,8 @@
 import 'dart:math';
 
-import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 
+import '../services/sound_service.dart';
 import '../theme/app_colors.dart';
 
 class CheckButton extends StatefulWidget {
@@ -23,8 +23,6 @@ class _CheckButtonState extends State<CheckButton>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late final Animation<double> _scale;
-
-  final AudioPlayer _audioPlayer = AudioPlayer();
 
   bool _showBurst = false;
 
@@ -62,22 +60,7 @@ class _CheckButtonState extends State<CheckButton>
   @override
   void dispose() {
     _controller.dispose();
-    _audioPlayer.dispose();
     super.dispose();
-  }
-
-  Future<void> _playCompleteSound() async {
-    try {
-      await _audioPlayer.stop();
-
-      await _audioPlayer.play(
-        AssetSource('sounds/habit_complete.mp3'),
-        volume: 0.30,
-      );
-    } catch (_) {
-      // Ако звукът не може да се възпроизведе,
-      // отметката продължава да работи нормално.
-    }
   }
 
   void _handleTap() {
@@ -86,7 +69,7 @@ class _CheckButtonState extends State<CheckButton>
     widget.onTap();
 
     if (willBeDone) {
-      _playCompleteSound();
+      SoundService.instance.playComplete();
 
       _controller.forward(from: 0);
 
