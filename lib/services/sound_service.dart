@@ -3,13 +3,17 @@ import 'package:flutter/foundation.dart';
 
 /// Кратък звук при завършване на навик.
 ///
-/// Един споделен player, зареден веднъж при стартиране на приложението.
-/// Първото докосване иначе има ~1 сек забавяне, докато asset-ът се
-/// декодира — тук той вече е в паметта и `playComplete()` звучи веднага.
+/// Един споделен player, зареден и „загрят" веднъж при стартиране.
+/// Първото възпроизвеждане иначе минава през декодиране + инициализация
+/// на платформения плейър (~1 сек); тук това се случва предварително,
+/// така че `playComplete()` звучи веднага.
 class SoundService {
   SoundService._();
 
   static final SoundService instance = SoundService._();
+
+  static final _asset = AssetSource('sounds/habit_complete.mp3');
+  static const _volume = 0.30;
 
   final AudioPlayer _player = AudioPlayer();
 
@@ -18,12 +22,17 @@ class SoundService {
   /// Извиква се веднъж от `main()` преди `runApp`.
   Future<void> preload() async {
     try {
-      // lowLatency режимът държи звука в паметта и го пуска моментално.
-      await _player.setPlayerMode(PlayerMode.lowLatency);
-      await _player.setVolume(0.30);
-      await _player.setSource(
-        AssetSource('sounds/habit_complete.mp3'),
-      );
+      await _player.setReleaseMode(ReleaseMode.stop);
+      await _player.setSource(_asset);
+      await _player.setVolume(_volume);
+
+      // Загряваме целия аудио конвейер с едно беззвучно възпроизвеждане,
+      // за да няма забавяне при първото истинско докосване.
+      await _player.setVolume(0);
+      await _player.resume();
+      await _player.stop();
+      await _player.seek(Duration.zero);
+      await _player.setVolume(_volume);
 
       _ready = true;
     } catch (e) {
@@ -31,19 +40,18 @@ class SoundService {
     }
   }
 
-  /// Пуска звука за завършен навик. Тих no-op, ако зареждането е
-  /// пропаднало или звукът не може да се възпроизведе.
+  /// Пуска звука за завършен навик. Тих no-op при проблем — отметката
+  /// работи и без звук.
   Future<void> playComplete() async {
-    if (!_ready) {
-      return;
-    }
-
     try {
-      // В lowLatency режим resume() пуска звука отначало всеки път.
-      await _player.resume();
-    } catch (_) {
-      // Отметката работи и без звук.
-    }
+      if (_ready) {
+        await _player.seek(Duration.zero);
+        await _player.resume();
+      } else {
+        // Резервен вариант, ако загряването е пропаднало.
+        await _player.play(_asset, volume: _volume);
+      }
+    } catch (_) {}
   }
 
   Future<void> dispose() => _player.dispose();
