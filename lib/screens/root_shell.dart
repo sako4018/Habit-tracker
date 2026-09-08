@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import '../models/habit.dart';
 import '../models/task.dart';
 import '../services/habit_storage.dart';
+import '../services/storage_exception.dart';
 import '../services/task_storage.dart';
 import '../widgets/add_habit_dialog.dart';
 import '../widgets/add_task_dialog.dart';
@@ -27,6 +28,10 @@ class _RootShellState extends State<RootShell> {
 
   bool loading = true;
 
+  /// Става true, ако запазените данни са повредени. Докато е true,
+  /// записите се спират, за да не се презапишат възстановимите данни.
+  bool _storageLocked = false;
+
   int _tabIndex = 0;
 
   @override
@@ -36,8 +41,21 @@ class _RootShellState extends State<RootShell> {
   }
 
   Future<void> _load() async {
-    final loadedHabits = await HabitStorage.load();
-    final loadedTasks = await TaskStorage.load();
+    List<Habit> loadedHabits = [];
+    List<Task> loadedTasks = [];
+    var failed = false;
+
+    try {
+      loadedHabits = await HabitStorage.load();
+    } on StorageException {
+      failed = true;
+    }
+
+    try {
+      loadedTasks = await TaskStorage.load();
+    } on StorageException {
+      failed = true;
+    }
 
     if (!mounted) {
       return;
@@ -47,14 +65,35 @@ class _RootShellState extends State<RootShell> {
       habits = loadedHabits;
       tasks = loadedTasks;
       loading = false;
+      _storageLocked = failed;
     });
+
+    if (failed) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Запазените данни са повредени. Записът е спрян, '
+            'за да не се изтрият. Рестартирай приложението.',
+          ),
+          duration: Duration(seconds: 8),
+        ),
+      );
+    }
   }
 
   Future<void> _persistHabits() {
+    if (_storageLocked) {
+      return Future.value();
+    }
+
     return HabitStorage.save(habits);
   }
 
   Future<void> _persistTasks() {
+    if (_storageLocked) {
+      return Future.value();
+    }
+
     return TaskStorage.save(tasks);
   }
 
@@ -190,14 +229,19 @@ class _RootShellState extends State<RootShell> {
     );
   }
 
-  void _onDataCleared() {
+  Future<void> _onDataCleared() async {
+    await HabitStorage.clearAll();
+    await TaskStorage.clear();
+
+    if (!mounted) {
+      return;
+    }
+
     setState(() {
       habits = [];
       tasks = [];
+      _storageLocked = false;
     });
-
-    _persistHabits();
-    _persistTasks();
   }
 
   @override

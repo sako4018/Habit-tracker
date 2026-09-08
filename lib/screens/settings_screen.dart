@@ -3,7 +3,6 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 
-import '../services/habit_storage.dart';
 import '../services/notification_service.dart';
 import '../services/profile_storage.dart';
 import '../theme/accent_color_controller.dart';
@@ -287,7 +286,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         false;
 
     if (confirmed) {
-      await HabitStorage.clearAll();
+      // Самото изчистване (навици + задачи) се прави в onDataCleared.
       widget.onDataCleared();
     }
   }
