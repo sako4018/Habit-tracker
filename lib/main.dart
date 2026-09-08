@@ -25,9 +25,9 @@ Future<void> main() async {
   // Зареждаме запазения accent цвят.
   await AccentColorController.instance.load();
 
-  // Зареждаме звука за завършен навик предварително, за да няма
-  // забавяне при първото докосване.
-  await SoundService.instance.preload();
+  // Зареждаме звука предварително, но БЕЗ await — стартът на
+  // приложението не бива да чака (и да зависва) заради аудиото.
+  SoundService.instance.preload();
 
   runApp(
     DevicePreview(
