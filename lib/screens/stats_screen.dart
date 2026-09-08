@@ -6,6 +6,7 @@ import '../theme/app_colors.dart';
 import '../widgets/contribution_heatmap.dart';
 import '../widgets/heatmap_legend.dart';
 import '../widgets/stat_card.dart';
+import 'year_contribution_screen.dart';
 
 class StatsScreen extends StatelessWidget {
   const StatsScreen({super.key});
@@ -56,11 +57,11 @@ class StatsScreen extends StatelessWidget {
       ),
 
       body: habits.isEmpty
-          ? Center(
+          ? const Center(
               child: Text(
                 'Добави навици, за да видиш статистика.',
                 style: TextStyle(
-                  color: Colors.grey.shade500,
+                  color: AppColors.textMuted,
                   fontSize: 15,
                 ),
               ),
@@ -118,14 +119,50 @@ class StatsScreen extends StatelessWidget {
                       crossAxisAlignment:
                           CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Активност този месец',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight:
-                                FontWeight.w600,
-                            fontSize: 15,
-                          ),
+                        Row(
+                          mainAxisAlignment:
+                              MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              'Активност този месец',
+                              style: TextStyle(
+                                color: AppColors.textPrimary,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 15,
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) =>
+                                        YearContributionScreen(
+                                      habits: habits,
+                                    ),
+                                  ),
+                                );
+                              },
+                              behavior: HitTestBehavior.opaque,
+                              child: const Row(
+                                children: [
+                                  Text(
+                                    'Цялата година',
+                                    style: TextStyle(
+                                      color: AppColors.textMuted,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                  SizedBox(width: 3),
+                                  Icon(
+                                    Icons.arrow_forward_ios,
+                                    size: 10,
+                                    color: AppColors.textMuted,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
 
                         const SizedBox(height: 12),

@@ -117,20 +117,22 @@ class _CheckButtonState extends State<CheckButton>
                 width: 34,
                 height: 34,
                 decoration: BoxDecoration(
-                  color: Colors.transparent,
-                  border: Border.all(
-                    color: widget.isDone
-                        ? AppColors.accent
-                        : Colors.grey.shade600,
-                    width: 3,
-                  ),
-                  borderRadius: BorderRadius.circular(10),
+                  shape: BoxShape.circle,
+                  color: widget.isDone
+                      ? AppColors.accent
+                      : Colors.transparent,
+                  border: widget.isDone
+                      ? null
+                      : Border.all(
+                          color: AppColors.inactive,
+                          width: 2,
+                        ),
                 ),
                 child: widget.isDone
-                    ? Icon(
+                    ? const Icon(
                         Icons.check,
-                        color: AppColors.accent,
-                        size: 21,
+                        color: AppColors.background,
+                        size: 20,
                       )
                     : null,
               ),
