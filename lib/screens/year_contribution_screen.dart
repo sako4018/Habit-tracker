@@ -13,14 +13,6 @@ class YearContributionScreen extends StatelessWidget {
     required this.habits,
   });
 
-  static const List<Color> levels = [
-    Color(0xFF202A23),
-    Color(0xFF123D20),
-    Color(0xFF176B2C),
-    Color(0xFF26A641),
-    Color(0xFF39D353),
-  ];
-
   static const List<String> monthNames = BgDates.months;
 
   static const List<String> weekDays = BgDates.weekdayLetters;
@@ -62,6 +54,7 @@ class YearContributionScreen extends StatelessWidget {
     BuildContext context,
     int year,
     int month,
+    List<Color> ramp,
   ) {
     final firstDay = DateTime(year, month, 1);
 
@@ -98,7 +91,7 @@ class YearContributionScreen extends StatelessWidget {
           Text(
             monthNames[month - 1],
             style: const TextStyle(
-              color: Colors.white,
+              color: AppColors.textPrimary,
               fontSize: 15,
               fontWeight: FontWeight.w600,
             ),
@@ -120,8 +113,8 @@ class YearContributionScreen extends StatelessWidget {
                         child: Center(
                           child: Text(
                             weekDays[weekdayIndex],
-                            style: TextStyle(
-                              color: Colors.grey.shade600,
+                            style: const TextStyle(
+                              color: AppColors.textFaint,
                               fontSize: 8,
                             ),
                           ),
@@ -182,16 +175,14 @@ class YearContributionScreen extends StatelessWidget {
                                       height: 13,
                                       decoration: BoxDecoration(
                                         color: isFuture
-                                            ? levels[0]
-                                            : levels[level],
+                                            ? ramp[0]
+                                            : ramp[level],
                                         borderRadius:
                                             BorderRadius.circular(3),
                                         border: isToday
                                             ? Border.all(
-                                                color:
-                                                    const Color(
-                                                  0xFF7CFF8C,
-                                                ),
+                                                color: AppColors
+                                                    .textPrimary,
                                                 width: 1.5,
                                               )
                                             : null,
@@ -219,6 +210,9 @@ class YearContributionScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final year = DateTime.now().year;
 
+    // Взима се веднъж: екранът рисува 12 месеца клетка по клетка.
+    final ramp = AppColors.heatmapLevels;
+
     return Scaffold(
       backgroundColor: AppColors.background,
 
@@ -229,11 +223,11 @@ class YearContributionScreen extends StatelessWidget {
       ),
 
       body: habits.isEmpty
-          ? Center(
+          ? const Center(
               child: Text(
                 'Добави навици, за да видиш активността.',
                 style: TextStyle(
-                  color: Colors.grey.shade500,
+                  color: AppColors.textMuted,
                 ),
               ),
             )
@@ -246,7 +240,7 @@ class YearContributionScreen extends StatelessWidget {
                   const Text(
                     'Активност за годината',
                     style: TextStyle(
-                      color: Colors.white,
+                      color: AppColors.textPrimary,
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                     ),
@@ -254,10 +248,10 @@ class YearContributionScreen extends StatelessWidget {
 
                   const SizedBox(height: 6),
 
-                  Text(
+                  const Text(
                     'Всеки квадрат показва процента изпълнени навици за деня.',
                     style: TextStyle(
-                      color: Colors.grey.shade500,
+                      color: AppColors.textMuted,
                       fontSize: 13,
                     ),
                   ),
@@ -270,6 +264,7 @@ class YearContributionScreen extends StatelessWidget {
                       context,
                       year,
                       index + 1,
+                      ramp,
                     ),
                   ),
 

@@ -115,6 +115,69 @@ void main() {
     });
   });
 
+  group('Habit.createdAt', () {
+    test('нов навик е създаден днес и се води 1 ден', () {
+      final h = Habit(id: '1', name: 'x', emoji: '⭐');
+
+      expect(h.trackedDays(), 1);
+    });
+
+    test('trackedDays брои включително днешния ден', () {
+      final h = Habit(
+        id: '1',
+        name: 'x',
+        emoji: '⭐',
+        createdAt: DateTime.now().subtract(const Duration(days: 9)),
+      );
+
+      expect(h.trackedDays(), 10);
+    });
+
+    test('часът се отрязва — createdAt е ден, не момент', () {
+      final h = Habit(
+        id: '1',
+        name: 'x',
+        emoji: '⭐',
+        createdAt: DateTime(2026, 3, 4, 23, 45),
+      );
+
+      expect(h.createdAt, DateTime(2026, 3, 4));
+    });
+
+    test('стар запис без createdAt взима първото отчитане', () {
+      final h = Habit.fromJson({
+        'id': '1',
+        'name': 'x',
+        'emoji': '⭐',
+        'completedDates': ['2026-05-20', '2026-05-02', '2026-06-01'],
+      });
+
+      expect(h.createdAt, DateTime(2026, 5, 2));
+    });
+
+    test('стар запис без отчитания се води отсега', () {
+      final h = Habit.fromJson({
+        'id': '1',
+        'name': 'x',
+        'emoji': '⭐',
+        'completedDates': <String>[],
+      });
+
+      expect(h.trackedDays(), 1);
+    });
+
+    test('createdAt преживява toJson/fromJson', () {
+      final h = Habit(
+        id: '1',
+        name: 'x',
+        emoji: '⭐',
+        createdAt: DateTime(2026, 1, 15),
+      );
+
+      expect(Habit.fromJson(h.toJson()).createdAt, DateTime(2026, 1, 15));
+    });
+  });
+
   group('Habit JSON', () {
     test('toJson/fromJson запазва данните', () {
       final h = Habit(

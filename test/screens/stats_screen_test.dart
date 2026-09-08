@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
@@ -85,5 +87,59 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Цялата година'), findsOneWidget);
+  });
+
+  group('прозорецът не наказва новите навици', () {
+    testWidgets('навик на един ден, отметнат днес, е 100%',
+        (tester) async {
+      final state = await pumpStats(tester);
+
+      state.addHabit(name: 'Вода', emoji: '💧');
+      state.toggleHabitToday(state.habits.first);
+      await tester.pumpAndSettle();
+
+      // Преди прозорецът беше фиксиран на 30 дни и това даваше 3%.
+      expect(find.text('100%'), findsWidgets);
+    });
+
+    testWidgets('докато няма 30 дни история, текстът го казва',
+        (tester) async {
+      final state = await pumpStats(tester);
+
+      state.addHabit(name: 'Вода', emoji: '💧');
+      await tester.pumpAndSettle();
+
+      expect(
+        find.textContaining('откакто ги следиш'),
+        findsOneWidget,
+      );
+      expect(find.textContaining('последните 30 дни'), findsNothing);
+    });
+
+    testWidgets('стар навик пак се мери спрямо пълните 30 дни',
+        (tester) async {
+      final old = Habit(
+        id: 'old',
+        name: 'Спорт',
+        emoji: '🏃',
+        createdAt: DateTime.now().subtract(const Duration(days: 90)),
+        completedDates: {
+          for (var i = 0; i < 15; i++) dayKey(i),
+        },
+      );
+
+      SharedPreferences.setMockInitialValues({
+        'habits_data_v2': jsonEncode([old.toJson()]),
+      });
+
+      await pumpStats(tester);
+
+      // 15 от 30 дни, а не 15 от 90.
+      expect(find.text('50%'), findsWidgets);
+      expect(
+        find.textContaining('последните 30 дни'),
+        findsOneWidget,
+      );
+    });
   });
 }

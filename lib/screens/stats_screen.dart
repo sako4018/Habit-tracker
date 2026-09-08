@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/bg_dates.dart';
 import '../models/habit.dart';
 import '../state/app_state.dart';
 import '../theme/app_colors.dart';
@@ -16,25 +17,46 @@ class StatsScreen extends StatelessWidget {
   const StatsScreen({super.key});
 
   static const _windowDays = 30;
+  static const _yearDays = 365;
 
-  /// Дял отметнати дни за навика през последните [_windowDays].
+  /// Дял отметнати дни за навика.
+  ///
+  /// Прозорецът е най-много 30 дни, но никога по-дълъг от възрастта на
+  /// навика — иначе дните преди той изобщо да съществува се броят за
+  /// пропуснати и навик на три дни има таван 10% завинаги.
   static double _rateFor(Habit habit, DateTime today) {
+    final window = habit.trackedDays(today).clamp(1, _windowDays);
+
     var done = 0;
 
-    for (var i = 0; i < _windowDays; i++) {
+    for (var i = 0; i < window; i++) {
       if (habit.isDoneOn(today.subtract(Duration(days: i)))) {
         done++;
       }
     }
 
-    return done / _windowDays;
+    return done / window;
   }
 
-  /// Дни през последната година с поне едно отметнато.
+  /// Откога изобщо се води статистика — възрастта на най-стария навик,
+  /// ограничена до година. Пести и обхождане на празни дни.
+  static int _trackedWindow(List<Habit> habits, DateTime today) {
+    if (habits.isEmpty) {
+      return 0;
+    }
+
+    final oldest = habits
+        .map((habit) => habit.trackedDays(today))
+        .reduce((a, b) => a > b ? a : b);
+
+    return oldest.clamp(1, _yearDays);
+  }
+
+  /// Дни с поне едно отметнато, откакто се води статистика.
   static int _activeDays(List<Habit> habits, DateTime today) {
     var count = 0;
 
-    for (var i = 0; i < 365; i++) {
+    for (var i = 0; i < _trackedWindow(habits, today); i++) {
       final day = today.subtract(Duration(days: i));
 
       if (habits.any((habit) => habit.isDoneOn(day))) {
@@ -68,6 +90,13 @@ class StatsScreen extends StatelessWidget {
                 .map((habit) => _rateFor(habit, today))
                 .reduce((a, b) => a + b) /
             habits.length;
+
+    // Докато няма 30 дни история, не се преструваме, че мерим 30 дни.
+    final tracked = _trackedWindow(habits, today);
+    final isYoung = tracked < _windowDays;
+
+    final windowLabel =
+        isYoung ? 'откакто ги следиш' : 'за последните 30 дни';
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -174,11 +203,11 @@ class StatsScreen extends StatelessWidget {
                         label: '${(overallRate * 100).round()}%',
                       ),
                       const SizedBox(width: 20),
-                      const Expanded(
+                      Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
+                            const Text(
                               'Успеваемост',
                               style: TextStyle(
                                 color: AppColors.textPrimary,
@@ -186,10 +215,10 @@ class StatsScreen extends StatelessWidget {
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
-                            SizedBox(height: 6),
+                            const SizedBox(height: 6),
                             Text(
-                              'Отметнати навици за\nпоследните 30 дни',
-                              style: TextStyle(
+                              'Отметнати навици\n$windowLabel',
+                              style: const TextStyle(
                                 color: AppColors.textMuted,
                                 fontSize: 13,
                                 height: 1.45,
@@ -224,7 +253,11 @@ class StatsScreen extends StatelessWidget {
 
                 const SizedBox(height: 28),
 
-                const SectionLabel('По навик · 30 дни'),
+                SectionLabel(
+                  isYoung
+                      ? 'По навик · ${BgDates.days(tracked)}'
+                      : 'По навик · 30 дни',
+                ),
 
                 const SizedBox(height: 14),
 

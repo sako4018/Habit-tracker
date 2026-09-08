@@ -2,67 +2,35 @@ import 'package:flutter/material.dart';
 
 import '../l10n/bg_dates.dart';
 import '../models/habit.dart';
-import '../models/task.dart';
 import '../theme/app_colors.dart';
 
+/// Мрежа "колко от навиците са отметнати за деня".
+///
+/// Брои САМО навици. Еднократните задачи нарочно остават извън нея:
+/// те се появяват и изчезват, така че ден с една задача и ден с пет
+/// навика не са сравними, а годишният изглед винаги е броил само
+/// навици — така двата изгледа значат едно и също.
 class ContributionHeatmap extends StatelessWidget {
   final List<Habit> habits;
-  final List<Task> tasks;
   final int weeks;
 
   const ContributionHeatmap({
     super.key,
     required this.habits,
-    this.tasks = const [],
     this.weeks = 5,
   });
 
-  /// Стълбицата се тонира с текущия акцентен цвят.
-  static List<Color> get levels => AppColors.heatmapLevels;
-
-  bool _isSameDay(DateTime a, DateTime b) {
-    return a.year == b.year &&
-        a.month == b.month &&
-        a.day == b.day;
-  }
-
-  int _completedHabits(DateTime date) {
+  int _completedItems(DateTime date) {
     return habits.where((habit) => habit.isDoneOn(date)).length;
   }
 
-  int _completedTasks(DateTime date) {
-    return tasks
-        .where(
-          (task) =>
-              _isSameDay(task.date, date) &&
-              task.isCompleted,
-        )
-        .length;
-  }
-
-  int _totalItems(DateTime date) {
-    final totalHabits = habits.length;
-
-    final totalTasksForDate = tasks
-        .where((task) => _isSameDay(task.date, date))
-        .length;
-
-    return totalHabits + totalTasksForDate;
-  }
-
-  int _completedItems(DateTime date) {
-    return _completedHabits(date) + _completedTasks(date);
-  }
-
   int _levelFor(DateTime date) {
-    final total = _totalItems(date);
-
-    if (total == 0) {
+    if (habits.isEmpty) {
       return 0;
     }
 
     final completed = _completedItems(date);
-    final percentage = completed / total;
+    final percentage = completed / habits.length;
 
     if (percentage == 0) {
       return 0;
@@ -95,7 +63,7 @@ class ContributionHeatmap extends StatelessWidget {
 
     // Взима се веднъж на build и се подава надолу: годишният изглед
     // рисува ~365 клетки и не бива да пита за стълбицата на всяка.
-    final ramp = levels;
+    final ramp = AppColors.heatmapLevels;
 
     if (weeks >= 52) {
       return _buildYearHeatmap(normalizedToday, ramp);
@@ -238,7 +206,7 @@ class ContributionHeatmap extends StatelessWidget {
         const Text(
           'Последната година',
           style: TextStyle(
-            color: Colors.white,
+            color: AppColors.textPrimary,
             fontSize: 18,
             fontWeight: FontWeight.w600,
           ),
@@ -306,7 +274,6 @@ class ContributionHeatmap extends StatelessWidget {
   ) {
     final level = _levelFor(date);
     final completed = _completedItems(date);
-    final total = _totalItems(date);
 
     final isToday =
         date.year == today.year &&
@@ -316,7 +283,7 @@ class ContributionHeatmap extends StatelessWidget {
     return Tooltip(
       message:
           '${date.day}.${date.month}.${date.year}\n'
-          '$completed/$total изпълнени',
+          '$completed/${habits.length} навика',
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
         width: 14,
@@ -342,7 +309,6 @@ class ContributionHeatmap extends StatelessWidget {
   }) {
     final level = _levelFor(date);
     final completed = _completedItems(date);
-    final total = _totalItems(date);
 
     final isToday =
         date.year == today.year &&
@@ -356,7 +322,7 @@ class ContributionHeatmap extends StatelessWidget {
         child: Tooltip(
           message:
               '${date.day}.${date.month}.${date.year}\n'
-              '$completed/$total изпълнени',
+              '$completed/${habits.length} навика',
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 180),
             width: 16,

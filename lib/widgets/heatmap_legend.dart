@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
-import 'contribution_heatmap.dart';
 
 class HeatmapLegend extends StatelessWidget {
   const HeatmapLegend({
@@ -23,7 +22,7 @@ class HeatmapLegend extends StatelessWidget {
 
         const SizedBox(width: 6),
 
-        ...ContributionHeatmap.levels.map(
+        ...AppColors.heatmapLevels.map(
           (color) {
             return Padding(
               padding: const EdgeInsets.only(left: 3),
