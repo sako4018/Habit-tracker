@@ -1,5 +1,9 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart' show rootBundle;
+
+import 'instant_sound_stub.dart'
+    if (dart.library.js_interop) 'instant_sound_web.dart';
 
 /// Кратък звук при отмятане на навик.
 ///
@@ -18,6 +22,8 @@ class SoundService {
 
   static final SoundService instance = SoundService._();
 
+  static const _assetPath = 'assets/sounds/habit_complete.mp3';
+
   static final _asset = AssetSource('sounds/habit_complete.mp3');
   static const _volume = 0.30;
 
@@ -30,9 +36,32 @@ class SoundService {
   bool _ready = false;
   bool _warmedUp = false;
 
+  /// В браузър звукът върви през WebAudio, а не през audioplayers.
+  bool _instant = false;
+
   /// Извиква се веднъж при стартиране. Не се чака в `main()` — ако
   /// платформеното аудио се бави, приложението не бива да чака с него.
   Future<void> preload() async {
+    // В браузър audioplayers пуска звука през <audio> елемент, което е
+    // твърде бавно за кратък UI звук. Там ползваме WebAudio директно.
+    if (InstantSound.isSupported) {
+      try {
+        final data = await rootBundle.load(_assetPath);
+
+        _instant = await InstantSound.load(
+          data.buffer.asUint8List(),
+          _volume,
+        );
+
+        if (_instant) {
+          _ready = true;
+          return;
+        }
+      } catch (e) {
+        debugPrint('InstantSound load failed: $e');
+      }
+    }
+
     try {
       for (var i = 0; i < _poolSize; i++) {
         final player = AudioPlayer();
@@ -69,6 +98,11 @@ class SoundService {
 
     _warmedUp = true;
 
+    if (_instant) {
+      InstantSound.unlock();
+      return;
+    }
+
     try {
       for (final player in _pool) {
         await player.setVolume(0);
@@ -83,6 +117,10 @@ class SoundService {
   /// no-op, отметката работи и без звук.
   Future<void> playComplete() async {
     try {
+      if (_instant && InstantSound.play()) {
+        return;
+      }
+
       if (!_ready || _pool.isEmpty) {
         return;
       }

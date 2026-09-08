@@ -23,6 +23,9 @@ dependencies:
   flutter_timezone: ^5.1.0
   image_picker: ^1.2.3
 
+  # Само за уеб: WebAudio пътят в lib/services/instant_sound_web.dart.
+  web: ^1.1.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
