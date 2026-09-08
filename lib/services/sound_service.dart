@@ -28,6 +28,7 @@ class SoundService {
 
   int _next = 0;
   bool _ready = false;
+  bool _warmedUp = false;
 
   /// Извиква се веднъж при стартиране. Не се чака в `main()` — ако
   /// платформеното аудио се бави, приложението не бива да чака с него.
@@ -52,6 +53,30 @@ class SoundService {
       // минаваше по бавния път.
       debugPrint('SoundService preload failed: $e');
     }
+  }
+
+  /// Загрява плейърите — трябва да се извика ВЪТРЕ в докосване на
+  /// потребителя.
+  ///
+  /// Браузърите държат AudioContext-а спрян, докато потребителят не
+  /// пипне страницата, и го пускат чак при първото истинско пускане на
+  /// звук. Този първи път е бавен. Тук го плащаме на първото докосване
+  /// някъде в приложението, а не на първото отмятане.
+  Future<void> warmUp() async {
+    if (_warmedUp || !_ready) {
+      return;
+    }
+
+    _warmedUp = true;
+
+    try {
+      for (final player in _pool) {
+        await player.setVolume(0);
+        await player.resume();
+        await player.stop();
+        await player.setVolume(_volume);
+      }
+    } catch (_) {}
   }
 
   /// Пуска звука за отметнат навик. Не се чака — при проблем е тих

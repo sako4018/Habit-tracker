@@ -78,6 +78,16 @@ class _HabitTrackerAppState extends State<HabitTrackerApp> {
 
   @override
   Widget build(BuildContext context) {
+    // Първото докосване където и да е в приложението загрява аудиото.
+    // Браузърът не пуска звук преди жест на потребителя, така че това
+    // не може да стане при стартиране.
+    return Listener(
+      onPointerDown: (_) => SoundService.instance.warmUp(),
+      child: _buildApp(context),
+    );
+  }
+
+  Widget _buildApp(BuildContext context) {
     // AppState пази навиците и задачите за цялото приложение.
     return ChangeNotifierProvider<AppState>(
       create: (_) => AppState()..load(),
