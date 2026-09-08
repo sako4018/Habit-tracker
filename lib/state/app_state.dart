@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import '../models/habit.dart';
 import '../models/task.dart';
 import '../services/habit_storage.dart';
+import '../services/sound_service.dart';
 import '../services/storage_exception.dart';
 import '../services/task_storage.dart';
 
@@ -97,8 +98,10 @@ class AppState extends ChangeNotifier {
     _persistHabits();
 
     if (willBeDone) {
+      // Само вибрация. Звукът идва от SoundService през CheckButton —
+      // системният клик тук се чуваше ВЪРХУ него и понеже е моментален,
+      // а mp3-то тръгваше по-късно, отмятането звучеше като закъсняло.
       HapticFeedback.mediumImpact();
-      SystemSound.play(SystemSoundType.click);
     }
   }
 
@@ -134,7 +137,7 @@ class AppState extends ChangeNotifier {
 
     if (task.isCompleted) {
       HapticFeedback.mediumImpact();
-      SystemSound.play(SystemSoundType.click);
+      SoundService.instance.playComplete();
     }
   }
 

@@ -1,12 +1,18 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
 
-/// Кратък звук при завършване на навик.
+/// Кратък звук при отмятане на навик.
 ///
-/// Един споделен player, зареден и „загрят" веднъж при стартиране.
-/// Първото възпроизвеждане иначе минава през декодиране + инициализация
-/// на платформения плейър (~1 сек); тук това се случва предварително,
-/// така че `playComplete()` звучи веднага.
+/// Целта е звукът да тръгва в същия кадър, в който пръстът докосва
+/// бутона. Три неща го постигат:
+///
+/// 1. `PlayerMode.lowLatency` — платформата държи звука декодиран в
+///    паметта (SoundPool на Android, WebAudio буфер в браузър) вместо
+///    да вдига медиен плейър при всяко пускане.
+/// 2. Малък пул от плейъри — второ бързо докосване не чака първото да
+///    свърши, а взима следващия свободен.
+/// 3. Нищо в горещия път освен `resume()`. Няма `seek`, няма
+///    зареждане на asset — те са свършени предварително.
 class SoundService {
   SoundService._();
 
@@ -15,44 +21,62 @@ class SoundService {
   static final _asset = AssetSource('sounds/habit_complete.mp3');
   static const _volume = 0.30;
 
-  final AudioPlayer _player = AudioPlayer();
+  /// Толкова бързи последователни отмятания могат да звучат наведнъж.
+  static const _poolSize = 3;
 
+  final List<AudioPlayer> _pool = [];
+
+  int _next = 0;
   bool _ready = false;
 
-  /// Извиква се веднъж от `main()` преди `runApp`.
+  /// Извиква се веднъж при стартиране. Не се чака в `main()` — ако
+  /// платформеното аудио се бави, приложението не бива да чака с него.
   Future<void> preload() async {
     try {
-      await _player.setReleaseMode(ReleaseMode.stop);
-      await _player.setSource(_asset);
-      await _player.setVolume(_volume);
+      for (var i = 0; i < _poolSize; i++) {
+        final player = AudioPlayer();
 
-      // Загряваме целия аудио конвейер с едно беззвучно възпроизвеждане,
-      // за да няма забавяне при първото истинско докосване.
-      await _player.setVolume(0);
-      await _player.resume();
-      await _player.stop();
-      await _player.seek(Duration.zero);
-      await _player.setVolume(_volume);
+        await player.setPlayerMode(PlayerMode.lowLatency);
+        await player.setReleaseMode(ReleaseMode.stop);
+        await player.setVolume(_volume);
+        await player.setSource(_asset);
+
+        _pool.add(player);
+      }
 
       _ready = true;
     } catch (e) {
+      // Нарочно НЕ пускаме беззвучно "загряване" тук: браузърите
+      // отказват звук преди първото докосване на потребителя, и този
+      // отказ преди чупеше зареждането, така че всяко следващо пускане
+      // минаваше по бавния път.
       debugPrint('SoundService preload failed: $e');
     }
   }
 
-  /// Пуска звука за завършен навик. Тих no-op при проблем — отметката
-  /// работи и без звук.
+  /// Пуска звука за отметнат навик. Не се чака — при проблем е тих
+  /// no-op, отметката работи и без звук.
   Future<void> playComplete() async {
     try {
-      if (_ready) {
-        await _player.seek(Duration.zero);
-        await _player.resume();
-      } else {
-        // Резервен вариант, ако загряването е пропаднало.
-        await _player.play(_asset, volume: _volume);
+      if (!_ready || _pool.isEmpty) {
+        return;
       }
+
+      final player = _pool[_next];
+      _next = (_next + 1) % _pool.length;
+
+      // В lowLatency режим resume() пуска звука отначало всеки път,
+      // затова тук няма seek — той е още едно отиване до платформата.
+      await player.resume();
     } catch (_) {}
   }
 
-  Future<void> dispose() => _player.dispose();
+  Future<void> dispose() async {
+    for (final player in _pool) {
+      await player.dispose();
+    }
+
+    _pool.clear();
+    _ready = false;
+  }
 }
