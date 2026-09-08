@@ -9,10 +9,14 @@ class CheckButton extends StatefulWidget {
   final bool isDone;
   final VoidCallback onTap;
 
+  /// Име на навика — иначе за екранния четец мишената е безименна.
+  final String semanticLabel;
+
   const CheckButton({
     super.key,
     required this.isDone,
     required this.onTap,
+    required this.semanticLabel,
   });
 
   @override
@@ -92,52 +96,57 @@ class _CheckButtonState extends State<CheckButton>
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      key: const Key('check_button'),
-      onTap: _handleTap,
-      child: SizedBox(
-        width: 56,
-        height: 56,
-        child: Stack(
-          alignment: Alignment.center,
-          clipBehavior: Clip.none,
-          children: [
-            if (_showBurst) const _BurstEffect(),
+    return Semantics(
+      label: widget.semanticLabel,
+      checked: widget.isDone,
+      button: true,
+      child: GestureDetector(
+        key: const Key('check_button'),
+        onTap: _handleTap,
+        child: SizedBox(
+          width: 56,
+          height: 56,
+          child: Stack(
+            alignment: Alignment.center,
+            clipBehavior: Clip.none,
+            children: [
+              if (_showBurst) const _BurstEffect(),
 
-            AnimatedBuilder(
-              animation: _scale,
-              builder: (context, child) {
-                return Transform.scale(
-                  scale: _scale.value,
-                  child: child,
-                );
-              },
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                width: 34,
-                height: 34,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: widget.isDone
-                      ? AppColors.accent
-                      : Colors.transparent,
-                  border: widget.isDone
-                      ? null
-                      : Border.all(
-                          color: AppColors.inactive,
-                          width: 2,
-                        ),
+              AnimatedBuilder(
+                animation: _scale,
+                builder: (context, child) {
+                  return Transform.scale(
+                    scale: _scale.value,
+                    child: child,
+                  );
+                },
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  width: 34,
+                  height: 34,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: widget.isDone
+                        ? AppColors.accent
+                        : Colors.transparent,
+                    border: widget.isDone
+                        ? null
+                        : Border.all(
+                            color: AppColors.inactive,
+                            width: 2,
+                          ),
+                  ),
+                  child: widget.isDone
+                      ? const Icon(
+                          Icons.check,
+                          color: AppColors.background,
+                          size: 20,
+                        )
+                      : null,
                 ),
-                child: widget.isDone
-                    ? const Icon(
-                        Icons.check,
-                        color: AppColors.background,
-                        size: 20,
-                      )
-                    : null,
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/bg_dates.dart';
 import '../models/habit.dart';
 import '../state/app_state.dart';
 import '../theme/app_colors.dart';
@@ -22,30 +23,7 @@ class _HabitCalendarScreenState
     extends State<HabitCalendarScreen> {
   late DateTime _visibleMonth;
 
-  static const _monthNames = [
-    'Януари',
-    'Февруари',
-    'Март',
-    'Април',
-    'Май',
-    'Юни',
-    'Юли',
-    'Август',
-    'Септември',
-    'Октомври',
-    'Ноември',
-    'Декември',
-  ];
-
-  static const _weekDayLabels = [
-    'П',
-    'В',
-    'С',
-    'Ч',
-    'П',
-    'С',
-    'Н',
-  ];
+  static const _weekDayLabels = BgDates.weekdayLetters;
 
   @override
   void initState() {
@@ -193,10 +171,9 @@ class _HabitCalendarScreenState
                 ),
 
                 Text(
-                  '${_monthNames[_visibleMonth.month - 1]} '
-                  '${_visibleMonth.year}',
+                  BgDates.monthYear(_visibleMonth),
                   style: const TextStyle(
-                    color: Colors.white,
+                    color: AppColors.textPrimary,
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
                   ),

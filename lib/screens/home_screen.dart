@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/bg_dates.dart';
 import '../models/habit.dart';
 import '../models/task.dart';
 import '../services/profile_storage.dart';
@@ -21,36 +22,6 @@ import 'profile_screen.dart';
 /// в Статистика и в календара на навика.
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
-
-  static const _weekdays = [
-    'понеделник',
-    'вторник',
-    'сряда',
-    'четвъртък',
-    'петък',
-    'събота',
-    'неделя',
-  ];
-
-  static const _months = [
-    'януари',
-    'февруари',
-    'март',
-    'април',
-    'май',
-    'юни',
-    'юли',
-    'август',
-    'септември',
-    'октомври',
-    'ноември',
-    'декември',
-  ];
-
-  static String _formatToday(DateTime date) {
-    return '${_weekdays[date.weekday - 1]}, '
-        '${date.day} ${_months[date.month - 1]}';
-  }
 
   bool _isSameDay(DateTime a, DateTime b) {
     return a.year == b.year &&
@@ -200,7 +171,9 @@ class HomeScreen extends StatelessWidget {
             : CustomScrollView(
                 slivers: [
                   SliverToBoxAdapter(
-                    child: _Header(today: _formatToday(today)),
+                    child: _Header(
+                      today: BgDates.weekdayDayMonth(today),
+                    ),
                   ),
 
                   if (!isEmpty)
@@ -460,7 +433,9 @@ class _DayProgress extends StatelessWidget {
                 ),
               ),
               Text(
-                remaining == 0 ? 'готово за днес' : 'остават $remaining',
+                remaining == 0
+                    ? 'готово за днес'
+                    : BgDates.remaining(remaining),
                 style: const TextStyle(
                   color: AppColors.textMuted,
                   fontSize: 12,
@@ -482,7 +457,7 @@ class _DayProgress extends StatelessWidget {
                 return LinearProgressIndicator(
                   value: value,
                   minHeight: 4,
-                  backgroundColor: const Color(0xFF2A2A2A),
+                  backgroundColor: AppColors.track,
                   valueColor: AlwaysStoppedAnimation(AppColors.accent),
                 );
               },
@@ -568,36 +543,41 @@ class _TaskCard extends StatelessWidget {
         ),
         child: Row(
           children: [
-            GestureDetector(
-              onTap: onToggle,
-              behavior: HitTestBehavior.opaque,
-              child: SizedBox(
-                width: 44,
-                height: 44,
-                child: Center(
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 180),
-                    width: 28,
-                    height: 28,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: task.isCompleted
-                          ? AppColors.accent
-                          : Colors.transparent,
-                      border: task.isCompleted
-                          ? null
-                          : Border.all(
-                              color: AppColors.inactive,
-                              width: 2,
-                            ),
+            Semantics(
+              label: task.name,
+              checked: task.isCompleted,
+              button: true,
+              child: GestureDetector(
+                onTap: onToggle,
+                behavior: HitTestBehavior.opaque,
+                child: SizedBox(
+                  width: 44,
+                  height: 44,
+                  child: Center(
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 180),
+                      width: 28,
+                      height: 28,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: task.isCompleted
+                            ? AppColors.accent
+                            : Colors.transparent,
+                        border: task.isCompleted
+                            ? null
+                            : Border.all(
+                                color: AppColors.inactive,
+                                width: 2,
+                              ),
+                      ),
+                      child: task.isCompleted
+                          ? const Icon(
+                              Icons.check,
+                              size: 17,
+                              color: AppColors.background,
+                            )
+                          : null,
                     ),
-                    child: task.isCompleted
-                        ? const Icon(
-                            Icons.check,
-                            size: 17,
-                            color: AppColors.background,
-                          )
-                        : null,
                   ),
                 ),
               ),

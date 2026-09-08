@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/bg_dates.dart';
 import '../models/habit.dart';
 import '../theme/app_colors.dart';
 import 'check_button.dart';
@@ -28,7 +29,7 @@ class HabitCard extends StatelessWidget {
       return 'започни отново';
     }
 
-    return '$streak ${streak == 1 ? "ден" : "дни"} подред';
+    return '${BgDates.days(streak)} подред';
   }
 
   @override
@@ -157,6 +158,7 @@ class HabitCard extends StatelessWidget {
               CheckButton(
                 isDone: isDone,
                 onTap: onToggleToday,
+                semanticLabel: habit.name,
               ),
             ],
           ),

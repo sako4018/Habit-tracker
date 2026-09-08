@@ -10,6 +10,9 @@ class AppColors {
   /// Ръб на карта — по-светъл от повърхността, за да се отделя.
   static const border = Color(0xFF262626);
 
+  /// Незапълнената част на лента за прогрес и празна клетка в heatmap.
+  static const track = Color(0xFF2A2A2A);
+
   // ---------------------------------------------------------------------
   // Текст
   //
@@ -39,13 +42,29 @@ class AppColors {
   static Color get accent =>
       AccentColorController.instance.notifier.value;
 
+  static Color? _cachedRampAccent;
+  static List<Color>? _cachedRamp;
+
   /// Стълбица за heatmap-а: от празен ден до пълен, тонирана с
   /// акцентния цвят, за да върви със смяната му.
-  static List<Color> get heatmapLevels => [
+  ///
+  /// Резултатът се кешира по стойността на акцента. Годишният heatmap
+  /// чете стълбицата веднъж на клетка (~365 пъти), при това по време на
+  /// анимация — без кеша това бяха стотици алокации на всеки кадър.
+  static List<Color> get heatmapLevels {
+    final current = accent;
+
+    if (_cachedRamp == null || _cachedRampAccent != current) {
+      _cachedRampAccent = current;
+      _cachedRamp = List<Color>.unmodifiable([
         const Color(0xFF242424),
-        accent.withValues(alpha: 0.24),
-        accent.withValues(alpha: 0.45),
-        accent.withValues(alpha: 0.70),
-        accent,
-      ];
+        current.withValues(alpha: 0.24),
+        current.withValues(alpha: 0.45),
+        current.withValues(alpha: 0.70),
+        current,
+      ]);
+    }
+
+    return _cachedRamp!;
+  }
 }

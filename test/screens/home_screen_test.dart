@@ -50,7 +50,13 @@ void main() {
     state.toggleHabitToday(state.habits.first);
     await tester.pumpAndSettle();
 
-    expect(find.text('остават 1'), findsOneWidget);
+    // Единствено число: "остава 1", не "остават 1".
+    expect(find.text('остава 1'), findsOneWidget);
+
+    state.toggleTask(state.tasks.first);
+    await tester.pumpAndSettle();
+
+    expect(find.text('готово за днес'), findsOneWidget);
   });
 
   testWidgets('Днес не показва аналитика (няма heatmap легенда)',

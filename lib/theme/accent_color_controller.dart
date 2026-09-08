@@ -23,9 +23,13 @@ class AccentColorController {
 
   static const String _key = 'accent_color_value';
 
+  /// Кехлибарът е новият подразбиращ се цвят. Оранжевото остава в
+  /// списъка, за да не ресетнем потребители, които са го избрали —
+  /// само лилавото отпадна с новия дизайн.
   static const List<AccentOption> options = [
     AccentOption(name: 'Кехлибар', color: Color(0xFFF5A623)),
     AccentOption(name: 'Жарава', color: Color(0xFFFF8A3D)),
+    AccentOption(name: 'Оранжево', color: Color(0xFFFFB74D)),
     AccentOption(name: 'Синьо', color: Color(0xFF64B5F6)),
     AccentOption(name: 'Зелено', color: Color(0xFF81C784)),
     AccentOption(name: 'Червено', color: Color(0xFFE57373)),

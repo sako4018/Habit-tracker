@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/bg_dates.dart';
 import '../models/habit.dart';
 import '../models/task.dart';
 import '../theme/app_colors.dart';
@@ -18,21 +19,6 @@ class ContributionHeatmap extends StatelessWidget {
 
   /// Стълбицата се тонира с текущия акцентен цвят.
   static List<Color> get levels => AppColors.heatmapLevels;
-
-  static const List<String> _monthNames = [
-    'Януари',
-    'Февруари',
-    'Март',
-    'Април',
-    'Май',
-    'Юни',
-    'Юли',
-    'Август',
-    'Септември',
-    'Октомври',
-    'Ноември',
-    'Декември',
-  ];
 
   bool _isSameDay(DateTime a, DateTime b) {
     return a.year == b.year &&
@@ -107,14 +93,18 @@ class ContributionHeatmap extends StatelessWidget {
       now.day,
     );
 
+    // Взима се веднъж на build и се подава надолу: годишният изглед
+    // рисува ~365 клетки и не бива да пита за стълбицата на всяка.
+    final ramp = levels;
+
     if (weeks >= 52) {
-      return _buildYearHeatmap(normalizedToday);
+      return _buildYearHeatmap(normalizedToday, ramp);
     }
 
-    return _buildMonthHeatmap(normalizedToday);
+    return _buildMonthHeatmap(normalizedToday, ramp);
   }
 
-  Widget _buildMonthHeatmap(DateTime today) {
+  Widget _buildMonthHeatmap(DateTime today, List<Color> ramp) {
     final year = today.year;
     final month = today.month;
 
@@ -136,23 +126,15 @@ class ContributionHeatmap extends StatelessWidget {
 
     final weekCount = (totalCells / 7).ceil();
 
-    const weekDays = [
-      'П',
-      'В',
-      'С',
-      'Ч',
-      'П',
-      'С',
-      'Н',
-    ];
+    const weekDays = BgDates.weekdayLetters;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          '${_monthNames[month - 1]} $year',
+          BgDates.monthYear(firstDay),
           style: const TextStyle(
-            color: Colors.white,
+            color: AppColors.textPrimary,
             fontSize: 18,
             fontWeight: FontWeight.w600,
           ),
@@ -218,6 +200,7 @@ class ContributionHeatmap extends StatelessWidget {
                             return _buildDayCell(
                               date: date,
                               today: today,
+                              ramp: ramp,
                             );
                           },
                         ),
@@ -233,7 +216,7 @@ class ContributionHeatmap extends StatelessWidget {
     );
   }
 
-  Widget _buildYearHeatmap(DateTime today) {
+  Widget _buildYearHeatmap(DateTime today, List<Color> ramp) {
     final startDate = today.subtract(
       const Duration(days: 364),
     );
@@ -300,6 +283,7 @@ class ContributionHeatmap extends StatelessWidget {
                             child: _buildYearCell(
                               date,
                               today,
+                              ramp,
                             ),
                           );
                         },
@@ -318,6 +302,7 @@ class ContributionHeatmap extends StatelessWidget {
   Widget _buildYearCell(
     DateTime date,
     DateTime today,
+    List<Color> ramp,
   ) {
     final level = _levelFor(date);
     final completed = _completedItems(date);
@@ -337,7 +322,7 @@ class ContributionHeatmap extends StatelessWidget {
         width: 14,
         height: 14,
         decoration: BoxDecoration(
-          color: levels[level],
+          color: ramp[level],
           borderRadius: BorderRadius.circular(3),
           border: isToday
               ? Border.all(
@@ -353,6 +338,7 @@ class ContributionHeatmap extends StatelessWidget {
   Widget _buildDayCell({
     required DateTime date,
     required DateTime today,
+    required List<Color> ramp,
   }) {
     final level = _levelFor(date);
     final completed = _completedItems(date);
@@ -376,7 +362,7 @@ class ContributionHeatmap extends StatelessWidget {
             width: 16,
             height: 16,
             decoration: BoxDecoration(
-              color: levels[level],
+              color: ramp[level],
               borderRadius: BorderRadius.circular(3),
               border: isToday
                   ? Border.all(

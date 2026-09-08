@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/bg_dates.dart';
 import '../models/habit.dart';
 import '../theme/app_colors.dart';
 import '../widgets/heatmap_legend.dart';
@@ -20,30 +21,9 @@ class YearContributionScreen extends StatelessWidget {
     Color(0xFF39D353),
   ];
 
-  static const List<String> monthNames = [
-    'Януари',
-    'Февруари',
-    'Март',
-    'Април',
-    'Май',
-    'Юни',
-    'Юли',
-    'Август',
-    'Септември',
-    'Октомври',
-    'Ноември',
-    'Декември',
-  ];
+  static const List<String> monthNames = BgDates.months;
 
-  static const List<String> weekDays = [
-    'П',
-    'В',
-    'С',
-    'Ч',
-    'П',
-    'С',
-    'Н',
-  ];
+  static const List<String> weekDays = BgDates.weekdayLetters;
 
   int completedHabits(DateTime date) {
     return habits.where(
