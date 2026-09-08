@@ -23,11 +23,19 @@ class NotificationService {
   static const String _minuteKey =
       'notification_minute';
 
+  bool _initialized = false;
+
   Future<void> initialize() async {
+    if (_initialized) {
+      return;
+    }
+
     tz.initializeTimeZones();
 
     const androidSettings =
-        AndroidInitializationSettings('@mipmap/ic_launcher');
+        AndroidInitializationSettings(
+      '@mipmap/ic_launcher',
+    );
 
     const initializationSettings =
         InitializationSettings(
@@ -38,24 +46,16 @@ class NotificationService {
       settings: initializationSettings,
     );
 
-    final androidPlugin =
-        _notifications.resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>();
-
-    await androidPlugin?.createNotificationChannel(
-      const AndroidNotificationChannel(
-        'streakly_daily',
-        'Streakly напомняния',
-        description: 'Ежедневни напомняния за навиците',
-        importance: Importance.high,
-      ),
-    );
+    _initialized = true;
   }
 
   Future<bool> requestPermission() async {
+    await initialize();
+
     final androidPlugin =
-        _notifications.resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>();
+        _notifications
+            .resolvePlatformSpecificImplementation<
+                AndroidFlutterLocalNotificationsPlugin>();
 
     if (androidPlugin == null) {
       return true;
@@ -71,17 +71,21 @@ class NotificationService {
     required int hour,
     required int minute,
   }) async {
+    await initialize();
+
     final prefs =
         await SharedPreferences.getInstance();
 
     final userName =
         prefs.getString('user_name') ?? '';
 
-    final notificationText = userName.isEmpty
-        ? 'Време е за твоите навици! 🔥'
-        : '$userName, време е за твоите навици! 🔥';
+    final notificationText =
+        userName.isEmpty
+            ? 'Време е за твоите навици! 🔥'
+            : '$userName, време е за твоите навици! 🔥';
 
-    final now = tz.TZDateTime.now(tz.local);
+    final now =
+        tz.TZDateTime.now(tz.local);
 
     var scheduledDate = tz.TZDateTime(
       tz.local,
@@ -92,8 +96,11 @@ class NotificationService {
       minute,
     );
 
+    // Ако часът вече е минал днес,
+    // първото известие ще бъде утре.
     if (!scheduledDate.isAfter(now)) {
-      scheduledDate = scheduledDate.add(
+      scheduledDate =
+          scheduledDate.add(
         const Duration(days: 1),
       );
     }
@@ -108,6 +115,12 @@ class NotificationService {
         importance: Importance.high,
         priority: Priority.high,
       ),
+    );
+
+    // Първо отменяме старото известие,
+    // за да няма две известия едновременно.
+    await _notifications.cancel(
+      id: _notificationId,
     );
 
     await _notifications.zonedSchedule(
@@ -139,6 +152,8 @@ class NotificationService {
   }
 
   Future<void> cancelDailyNotification() async {
+    await initialize();
+
     await _notifications.cancel(
       id: _notificationId,
     );
