@@ -146,6 +146,20 @@ usable and the test suite green.
 - [ ] Month and year summaries next to the current 30-day view
 - [ ] "Best month" and "current pace" cards
 
+### v1.4 – Platform integration
+
+- [ ] Home-screen widget (Android) showing today's habits
+- [ ] Quick actions / app shortcuts to tick the top habit
+- [ ] Notification action button to mark done without opening the app
+- [ ] Wear OS companion tile (stretch)
+
+### v2.0 – Sync & accounts
+
+- [ ] Optional account (email or passkey), app stays fully usable offline
+- [ ] End-to-end encrypted cloud sync across devices
+- [ ] Conflict resolution: last-write-wins per day-key, never lose a check-in
+- [ ] Web build reads the same synced data
+
 ---
 
 ## License
