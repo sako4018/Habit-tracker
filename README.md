@@ -160,6 +160,26 @@ usable and the test suite green.
 - [ ] Conflict resolution: last-write-wins per day-key, never lose a check-in
 - [ ] Web build reads the same synced data
 
+### Ideas / maybe
+
+Not committed to a release yet:
+
+- [ ] Habit categories and folders
+- [ ] Localisation beyond Bulgarian (English first)
+- [ ] Themes and light mode
+- [ ] Streak-freeze tokens you earn by being consistent
+- [ ] Shareable streak image for social media
+- [ ] Import from other habit apps (Loop, HabitKit)
+
+### Non-goals
+
+To keep the app small and calm, these are intentionally out of scope:
+
+- Social feed, friends, following, comments
+- Ads or paywalled core features
+- Gamification with points, coins, or leaderboards
+- Always-on background tracking or location
+
 ---
 
 ## License
