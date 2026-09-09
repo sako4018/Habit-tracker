@@ -137,6 +137,14 @@ usable and the test suite green.
 - [ ] Weekly / custom habit schedules (e.g. Mon-Wed-Fri only)
 - [ ] More than one reminder per day
 - [ ] Per-habit reminder times instead of one global time
+- [ ] "Skip today" that does not break the streak (planned rest days)
+
+### v1.3 – Insights
+
+- [ ] Line chart of success rate over time
+- [ ] Per-weekday breakdown (which days you miss most)
+- [ ] Month and year summaries next to the current 30-day view
+- [ ] "Best month" and "current pace" cards
 
 ---
 
