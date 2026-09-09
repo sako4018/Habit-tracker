@@ -187,6 +187,17 @@ To keep the app small and calm, these are intentionally out of scope:
 - Gamification with points, coins, or leaderboards
 - Always-on background tracking or location
 
+### Release checklist
+
+Before tagging any version:
+
+1. `flutter analyze` is clean.
+2. `flutter test` is green.
+3. Data migration tested with a real backup from the previous version.
+4. Manual smoke test on Android and Web.
+5. Screenshots in `docs/screenshots/` refreshed if the UI changed.
+6. Roadmap items above ticked and moved to the changelog.
+
 ---
 
 ## License
