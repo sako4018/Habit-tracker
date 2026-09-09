@@ -200,6 +200,24 @@ Before tagging any version:
 
 ---
 
+## Changelog
+
+### Unreleased
+
+- Redesign: amber accent, higher-contrast greys, "Today" is a check-off screen
+- Stats and habit-detail screens rebuilt to match the canvas mockups
+- Heatmap performance pass, shared Bulgarian date helpers
+- Sound starts on tap via WebAudio in the browser
+
+### v1.0
+
+- Habits and one-off tasks, streaks, contribution heatmap
+- Per-habit calendar, 30-day statistics, daily reminder
+- Accent colour picker, local profile, dark theme
+- Crash-safe storage with corruption guard, 36 tests
+
+---
+
 ## License
 
 No license yet – all rights reserved by the author.
