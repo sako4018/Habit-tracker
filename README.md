@@ -122,11 +122,21 @@ flutter test
 
 ## Roadmap
 
-- [ ] Local database (`sqflite` / `hive`) instead of a JSON blob
-- [ ] Data export / import (backup to file)
-- [ ] Versioned data migrations
-- [ ] Weekly / custom habit schedules
-- [ ] Widgets / home-screen shortcuts
+The plan is split into small, shippable releases. Each one should leave the app
+usable and the test suite green.
+
+### v1.1 – Storage & data safety
+
+- [ ] Local database (`sqflite` / `hive`) instead of a single JSON blob
+- [ ] Data export / import (backup to a file, restore from it)
+- [ ] Versioned data migrations with a schema version field
+- [ ] Automatic local backup before every migration
+
+### v1.2 – Scheduling
+
+- [ ] Weekly / custom habit schedules (e.g. Mon-Wed-Fri only)
+- [ ] More than one reminder per day
+- [ ] Per-habit reminder times instead of one global time
 
 ---
 
