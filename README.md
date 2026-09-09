@@ -125,6 +125,13 @@ flutter test
 The plan is split into small, shippable releases. Each one should leave the app
 usable and the test suite green.
 
+**Guiding principles**
+
+- Offline-first: every feature must work with no network.
+- Local data is the source of truth; sync is an addition, never a requirement.
+- No feature ships without tests for its domain logic.
+- Calm by default: no streaks-shaming, no red badges, no dark patterns.
+
 ### v1.1 – Storage & data safety
 
 - [ ] Local database (`sqflite` / `hive`) instead of a single JSON blob
